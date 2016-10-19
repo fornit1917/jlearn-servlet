@@ -1,0 +1,32 @@
+.no-overflow {
+    overflow: hidden;
+}
+
+.error {
+    color: red;
+}
+
+.auth-container {
+    background: url(../img/bg.jpg) no-repeat top center;
+    min-height: 800px;
+}
+
+.auth-form {
+    width: 300px;
+    float: right;
+    margin: 100px 30px 0 0;
+    text-align: center;
+}
+
+.auth-form button[type="submit"] {
+    width: 100%;
+}
+
+.auth-form a.or-link {
+    color: #36c;
+    margin-top: 10px;
+    display: inline-block;
+}
+.auth-form a.or-link:visited {
+    color: #36c;
+}
