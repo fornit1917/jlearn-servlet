@@ -27,7 +27,7 @@ public class AppBaseServlet extends HttpServlet
         viewHelper = new ViewHelper(getServletContext());
         templateConfig = new Configuration(Configuration.VERSION_2_3_25);
         try {
-            templateConfig.setDirectoryForTemplateLoading(new File(getServletContext().getRealPath("templates")));
+            templateConfig.setDirectoryForTemplateLoading(new File(getServletContext().getRealPath("WEB-INF/templates")));
         } catch (IOException e) {
             //todo: handling
             e.printStackTrace();
