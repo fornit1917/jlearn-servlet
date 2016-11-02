@@ -6,6 +6,7 @@
     color: red;
 }
 
+.error-container,
 .auth-container {
     background: url(../img/bg.jpg) no-repeat top center;
     min-height: 800px;

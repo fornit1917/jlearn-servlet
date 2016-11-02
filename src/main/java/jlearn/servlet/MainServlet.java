@@ -12,13 +12,12 @@ public class MainServlet extends AppBaseServlet
 {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        UserService service = new UserService();
-        CommandResult<Integer> result = service.register();
-        if (result.isError()) {
-            resp.getWriter().println("Error");
+        String uri = req.getRequestURI();
+        String root = req.getContextPath() + "/";
+        if (uri.equals(root)) {
+            resp.sendRedirect(viewHelper.path("/signin"));
         } else {
-            resp.getWriter().println("OK");
+            resp.sendError(404);
         }
-        //resp.sendRedirect(viewHelper.path("/signin"));
     }
 }

@@ -29,20 +29,19 @@ public class AppBaseServlet extends HttpServlet
         try {
             templateConfig.setDirectoryForTemplateLoading(new File(getServletContext().getRealPath("WEB-INF/templates")));
         } catch (IOException e) {
-            //todo: handling
-            e.printStackTrace();
+            throw new ServletException(e);
         }
     }
 
-    protected void render(String templateName, Map<String, Object> data, HttpServletResponse resp)
+    protected void render(String templateName, Map<String, Object> data, HttpServletResponse resp) throws IOException
     {
         data.put("helper", viewHelper);
         try {
             Template template = templateConfig.getTemplate(templateName);
             template.process(data, resp.getWriter());
         } catch (IOException | TemplateException e) {
-            //todo: handling
-            e.printStackTrace();
+            resp.sendError(500, "Template render error");
+            //todo: log
         }
     }
 
