@@ -1,0 +1,13 @@
+<Resource
+    name="jdbc/booksdb"
+    auth="Container"
+    type="javax.sql.DataSource"
+    maxActive="10"
+    maxIdle="4"
+    maxWait="10000"
+    username="books"
+    password="books123"
+    driverClassName="org.postgresql.Driver"
+    url="jdbc:postgresql://192.168.33.13:5432/books"
+    validationQuery="SELECT 1"
+/>

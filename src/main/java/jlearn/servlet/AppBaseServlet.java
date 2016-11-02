@@ -5,13 +5,17 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import jlearn.servlet.view.ViewHelper;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.Map;
 
 public class AppBaseServlet extends HttpServlet
@@ -57,5 +61,18 @@ public class AppBaseServlet extends HttpServlet
 
         String[] parts = uri.split("/");
         return parts.length > num ? parts[num] : "";
+    }
+
+    protected DataSource getDataSource() throws ServletException
+    {
+        DataSource ds = (DataSource)getServletContext().getAttribute("data-source");
+        if (ds == null) {
+            throw new ServletException("Cannot get data source");
+        }
+        return ds;
+    }
+
+    protected void sendErrorByException(Throwable e) throws ServletException {
+        throw new ServletException(e);
     }
 }
