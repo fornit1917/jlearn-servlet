@@ -5,16 +5,17 @@ CREATE TABLE "user"
   is_admin BOOLEAN DEFAULT false NOT NULL,
   is_active BOOLEAN DEFAULT false NOT NULL,
   hpassw VARCHAR(64) NOT NULL,
+  create_date TIMESTAMP DEFAULT now() NOT NULL,
   auth_key VARCHAR(32),
-  create_date TIMESTAMP DEFAULT now() NOT NULL
+  invite_id INTEGER,
+  CONSTRAINT user_invite_fk FOREIGN KEY (invite_id) REFERENCES invite (id)
 );
 CREATE UNIQUE INDEX user_email_uindex ON "user" (email);
+CREATE UNIQUE INDEX user_invite_id_uindex ON "user" (invite_id);
 
 CREATE TABLE invite
 (
-  code VARCHAR(32) PRIMARY KEY NOT NULL,
-  user_id INTEGER,
-  CONSTRAINT invite_user_id_fk FOREIGN KEY (user_id) REFERENCES "user" (id)
+  id INTEGER PRIMARY KEY NOT NULL,
+  code VARCHAR(64) NOT NULL
 );
 CREATE UNIQUE INDEX invite_code_uindex ON invite (code);
-CREATE UNIQUE INDEX invite_user_id_uindex ON invite (user_id);

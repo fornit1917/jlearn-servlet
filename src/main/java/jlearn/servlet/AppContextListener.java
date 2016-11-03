@@ -1,5 +1,6 @@
 package jlearn.servlet;
 
+import jlearn.servlet.service.InviteService;
 import jlearn.servlet.service.ServiceContainer;
 import jlearn.servlet.service.UserService;
 
@@ -21,7 +22,13 @@ public class AppContextListener implements ServletContextListener {
             DataSource ds = (DataSource)envContext.lookup("jdbc/booksdb");
 
             ServiceContainer sc = new ServiceContainer();
-            sc.setUserService(new UserService(ds));
+
+            InviteService inviteService = new InviteService(ds);
+            sc.setInviteService(inviteService);
+
+            UserService userService = new UserService(ds);
+            userService.setInviteService(inviteService);
+            sc.setUserService(userService);
 
             ctx.setAttribute("service-container", sc);
         } catch (Exception e) {

@@ -12,7 +12,12 @@ public class MainServlet extends AppBaseServlet
         String uri = req.getRequestURI();
         String root = req.getContextPath() + "/";
         if (uri.equals(root)) {
-            resp.sendRedirect(urlHelper.path("/signin"));
+            if (getUserSession(req).isGuest()) {
+                resp.sendRedirect(urlHelper.path("/signin"));
+            } else {
+                resp.sendRedirect(urlHelper.path("/book/list"));
+            }
+
         } else {
             resp.sendError(404);
         }

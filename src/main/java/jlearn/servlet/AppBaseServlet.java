@@ -56,7 +56,17 @@ public class AppBaseServlet extends HttpServlet
         return sc;
     }
 
-    protected void sendErrorByException(Throwable e) throws ServletException {
+    protected void sendErrorByException(Throwable e) throws ServletException
+    {
         throw new ServletException(e);
+    }
+
+    protected UserSession getUserSession(HttpServletRequest req) throws ServletException
+    {
+        UserSession userSession = (UserSession) req.getAttribute("user-session");
+        if (userSession == null) {
+            throw new ServletException("User session has not loaded");
+        }
+        return userSession;
     }
 }

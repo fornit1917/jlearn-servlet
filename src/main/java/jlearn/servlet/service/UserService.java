@@ -4,31 +4,96 @@ import jlearn.servlet.entity.User;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-/**
- * Created by Vit on 20.10.2016.
- */
 public class UserService
 {
     private DataSource ds;
+    private InviteService inviteService;
+    private Pattern emailRegex;
 
     public UserService(DataSource ds)
     {
         this.ds = ds;
+        emailRegex = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
     }
 
-    public CommandResult<Integer> register()
+    public void setInviteService(InviteService inviteService)
     {
-        return CommandResult.createOkResult();
+        this.inviteService = inviteService;
+    }
+
+    public CommandResult<User> register(String email, String password, String passwordRepeat, String invite) throws SQLException {
+        email = email.trim().toLowerCase();
+        if (email.isEmpty()) {
+            return CommandResult.createErrorResult("Email is required");
+        }
+
+        Matcher matcher = emailRegex.matcher(email);
+        if (!matcher.matches()) {
+            return CommandResult.createErrorResult("Email is not valid");
+        }
+
+        if (password.isEmpty()) {
+            return CommandResult.createErrorResult("Password required");
+        }
+        if (password.length() < 6) {
+            return CommandResult.createErrorResult("Password must be at least 6 characters");
+        }
+        if (!password.equals(passwordRepeat)) {
+            return CommandResult.createErrorResult("Passwords do not match");
+        }
+
+        try (Connection conn = ds.getConnection()) {
+            if (existsUserByEmail(email, conn)) {
+                return CommandResult.createErrorResult("Email is already used");
+            }
+
+            Integer inviteId = inviteService.getInviteIdIfFree(invite, conn);
+            if (inviteId == null) {
+                return CommandResult.createErrorResult("Incorrect or busy invite code");
+            }
+
+            User user = new User();
+            user.setEmail(email);
+            user.setActive(true);
+            user.setAdmin(false);
+            user.setHpassw(BCrypt.hashpw(password, BCrypt.gensalt()));
+            user.setAuthKey(BCrypt.gensalt());
+
+            PreparedStatement st = conn.prepareStatement(
+                "INSERT INTO \"user\" (email, is_active, is_admin, hpassw, auth_key, invite_id) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS
+            );
+            st.setString(1, email);
+            st.setBoolean(2, user.isActive());
+            st.setBoolean(3, user.isAdmin());
+            st.setString(4, user.getHpassw());
+            st.setString(5, user.getAuthKey());
+            st.setInt(6, inviteId);
+            try {
+                st.executeUpdate();
+            } catch (SQLException e) {
+                throw new SQLException("Unknown error. Try again later");
+            }
+
+            ResultSet ids = st.getGeneratedKeys();
+            if (ids.next()) {
+                user.setId(ids.getInt(1));
+            } else {
+                throw new SQLException("Cannot generate id for new user");
+            }
+
+            return CommandResult.createOkResult(user);
+        }
     }
 
     public User authenticate(String identity, String password) throws SQLException
     {
-        User user = getByEmail(identity);
+        User user = getByEmail(identity.toLowerCase());
         if (user == null || !user.isActive()) {
             return null;
         }
@@ -52,7 +117,7 @@ public class UserService
         return user;
     }
 
-    public User getByEmail(String email) throws SQLException
+    private User getByEmail(String email) throws SQLException
     {
         User user = null;
         try (Connection conn = ds.getConnection()) {
@@ -66,7 +131,15 @@ public class UserService
         return user;
     }
 
-    private User createUserFromResultSet(ResultSet rs) throws SQLException {
+    private boolean existsUserByEmail(String email, Connection conn) throws SQLException
+    {
+        PreparedStatement st = conn.prepareStatement("SELECT 1 FROM \"user\" WHERE email=?");
+        st.setString(1, email);
+        return st.executeQuery().next();
+    }
+
+    private User createUserFromResultSet(ResultSet rs) throws SQLException
+    {
         User user = null;
         if (rs.next()) {
             user = new User();

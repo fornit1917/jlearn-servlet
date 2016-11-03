@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 
-public class UserSession
+class UserSession
 {
     private User user;
 
@@ -77,11 +77,8 @@ public class UserSession
 
     private static String getTokenForUser(User user, String ip)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(user.getId());
-        sb.append(user.getAuthKey());
-        sb.append(ip);
-        return DigestUtils.md5Hex(sb.toString());
+        String s = String.valueOf(user.getId()) + user.getAuthKey() + ip;
+        return DigestUtils.md5Hex(s);
     }
 
     private UserSession(User user)
@@ -91,6 +88,11 @@ public class UserSession
 
     public boolean isGuest()
     {
-        return user != null;
+        return user == null;
+    }
+
+    public User getUser()
+    {
+        return user;
     }
 }

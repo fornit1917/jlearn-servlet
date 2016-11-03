@@ -8,7 +8,7 @@ public class CommandResult<T>
 
     public static <T> CommandResult<T> createOkResult()
     {
-        return new CommandResult<T>();
+        return new CommandResult<>();
     }
 
     public static <T> CommandResult<T> createOkResult(T result)
@@ -18,7 +18,12 @@ public class CommandResult<T>
 
     public static <T> CommandResult<T> createErrorResult(ErrorDescriptor error)
     {
-        return new CommandResult<T>(null, error);
+        return new CommandResult<>(null, error);
+    }
+
+    public static <T> CommandResult<T> createErrorResult(String error)
+    {
+        return new CommandResult<>(null, new ErrorDescriptor(error));
     }
 
     private CommandResult() {}
@@ -37,5 +42,10 @@ public class CommandResult<T>
     public T getResult()
     {
         return result;
+    }
+
+    public ErrorDescriptor getError()
+    {
+        return error;
     }
 }
