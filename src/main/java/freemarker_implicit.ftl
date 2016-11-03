@@ -1,3 +1,3 @@
 [#ftl]
 [#-- @implicitly included --]
-[#-- @ftlvariable name="helper" type="jlearn.servlet.view.ViewHelper" --]
+[#-- @ftlvariable name="urlHelper" type="jlearn.servlet.helper.UrlHelper" --]

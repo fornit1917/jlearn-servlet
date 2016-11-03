@@ -14,7 +14,7 @@ public class AuthServlet extends AppBaseServlet
 {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = getRequestUriSegment(req, 1);
+        String action = urlHelper.getRequestUriSegment(req, 1);
         Map<String, Object> data = new HashMap<>();
         String error = (String)req.getSession().getAttribute("auth-error");
         if (error != null) {
@@ -37,8 +37,8 @@ public class AuthServlet extends AppBaseServlet
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = getRequestUriSegment(req, 1);
-        UserService service = new UserService(getDataSource());
+        String action = urlHelper.getRequestUriSegment(req, 1);
+        UserService service = getServiceContainer().getUserService();
         switch (action) {
             case "signin":
                 String identity = req.getParameter("email");
@@ -47,10 +47,10 @@ public class AuthServlet extends AppBaseServlet
                     User user = service.authenticate(identity, password);
                     if (user == null) {
                         req.getSession().setAttribute("auth-error", "Incorrect email or password");
-                        resp.sendRedirect(viewHelper.path("/signin"));
+                        resp.sendRedirect(urlHelper.path("/signin"));
                     } else {
                         UserSession.createAndStart(user, req.getRemoteAddr(), false, resp);
-                        resp.sendRedirect(viewHelper.path("/book/list"));
+                        resp.sendRedirect(urlHelper.path("/book/list"));
                     }
                 } catch (Exception e) {
                     sendErrorByException(e);

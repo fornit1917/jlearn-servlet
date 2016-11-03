@@ -22,7 +22,7 @@
             <input type="text" name="invite" class="form-control" placeholder="Invite Code"/>
         </div>
         <button type="submit" class="btn btn-primary">Sign Up</button>
-        <a class="or-link" href="${helper.path("/signin")}">Or Sign In</a>
+        <a class="or-link" href="${urlHelper.path("/signin")}">Or Sign In</a>
     </form>
 </#macro>
 

@@ -3,10 +3,9 @@ package jlearn.servlet;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import jlearn.servlet.view.ViewHelper;
+import jlearn.servlet.helper.UrlHelper;
+import jlearn.servlet.service.ServiceContainer;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,20 +14,19 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.Map;
 
 public class AppBaseServlet extends HttpServlet
 {
     private Configuration templateConfig;
 
-    protected ViewHelper viewHelper;
+    protected UrlHelper urlHelper;
 
     @Override
     public void init(ServletConfig config) throws ServletException
     {
         super.init(config);
-        viewHelper = new ViewHelper(getServletContext());
+        urlHelper = new UrlHelper(getServletContext());
         templateConfig = new Configuration(Configuration.VERSION_2_3_25);
         try {
             templateConfig.setDirectoryForTemplateLoading(new File(getServletContext().getRealPath("WEB-INF/templates")));
@@ -39,7 +37,7 @@ public class AppBaseServlet extends HttpServlet
 
     protected void render(String templateName, Map<String, Object> data, HttpServletResponse resp) throws IOException
     {
-        data.put("helper", viewHelper);
+        data.put("urlHelper", urlHelper);
         try {
             Template template = templateConfig.getTemplate(templateName);
             template.process(data, resp.getWriter());
@@ -49,27 +47,13 @@ public class AppBaseServlet extends HttpServlet
         }
     }
 
-    protected String getRequestUriSegment(HttpServletRequest req, int num)
+    protected ServiceContainer getServiceContainer() throws ServletException
     {
-        String uri;
-        String prefix = req.getContextPath();
-        if (prefix != null && !prefix.isEmpty()) {
-            uri = req.getRequestURI().substring(prefix.length());
-        } else {
-            uri = req.getRequestURI();
+        ServiceContainer sc = (ServiceContainer)getServletContext().getAttribute("service-container");
+        if (sc == null) {
+            throw new ServletException("Cannot get service container");
         }
-
-        String[] parts = uri.split("/");
-        return parts.length > num ? parts[num] : "";
-    }
-
-    protected DataSource getDataSource() throws ServletException
-    {
-        DataSource ds = (DataSource)getServletContext().getAttribute("data-source");
-        if (ds == null) {
-            throw new ServletException("Cannot get data source");
-        }
-        return ds;
+        return sc;
     }
 
     protected void sendErrorByException(Throwable e) throws ServletException {

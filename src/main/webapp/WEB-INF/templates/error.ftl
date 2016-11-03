@@ -10,7 +10,7 @@
         <div class="container">
             <h1>Error ${code}</h1>
             <p class="error-text">${text}</p>
-            <p><a class="go-to-main" href="${helper.path("/")}">Go back to the main page</a></p>
+            <p><a class="go-to-main" href="${urlHelper.path("/")}">Go back to the main page</a></p>
             <#if ((verbose!"") != "") >
                 <p class="error-verbose">
                 <pre>

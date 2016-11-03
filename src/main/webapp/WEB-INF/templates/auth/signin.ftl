@@ -16,7 +16,7 @@
             <input type="password" name="password" class="form-control" placeholder="Password"/>
         </div>
         <button type="submit" class="btn btn-primary">Sign In</button>
-        <a class="or-link" href="${helper.path("/signup")}">Or Sign Up</a>
+        <a class="or-link" href="${urlHelper.path("/signup")}">Or Sign Up</a>
     </form>
 </#macro>
 
