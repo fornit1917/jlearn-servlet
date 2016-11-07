@@ -43,15 +43,17 @@ public class AuthFilter implements Filter
             String uri = httpReq.getRequestURI();
             String root = httpReq.getContextPath() + "/";
             if (userSession.isGuest()) {
-                if (uri.equals(root) || action.equals("logout")) {
-                    httpResp.sendRedirect(urlHelper.path("/signin"));
-                } else if (action.equals("signin") || action.equals("signup")) {
+                if (action.equals("signin") || action.equals("signup")) {
                     filterChain.doFilter(req, resp);
                 } else {
-                    httpResp.sendError(404);
+                    httpResp.sendRedirect(urlHelper.path("/signin"));
                 }
             } else {
-                filterChain.doFilter(req, resp);
+                if (action.equals("signin") || action.equals("signup")) {
+                    httpResp.sendRedirect(urlHelper.path("/books/list"));
+                } else {
+                    filterChain.doFilter(req, resp);
+                }
             }
         } catch (SQLException e) {
             throw new ServletException(e);

@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BookServlet extends AppBaseServlet
 {
@@ -13,10 +15,7 @@ public class BookServlet extends AppBaseServlet
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
         UserSession userSession = getUserSession(req);
-        if (userSession.isGuest()) {
-            resp.getWriter().write("Guest");
-        } else {
-            resp.getWriter().write(userSession.getUser().getEmail());
-        }
+        Map<String, Object> data = new HashMap<>();
+        render("book/list.ftl", data, resp, req);
     }
 }

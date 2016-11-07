@@ -35,9 +35,12 @@ public class AppBaseServlet extends HttpServlet
         }
     }
 
-    protected void render(String templateName, Map<String, Object> data, HttpServletResponse resp) throws IOException
+    protected void render(String templateName, Map<String, Object> data, HttpServletResponse resp, HttpServletRequest req) throws IOException, ServletException
     {
         data.put("urlHelper", urlHelper);
+        if (req != null) {
+            data.put("user", getUserSession(req).getUser());
+        }
         try {
             Template template = templateConfig.getTemplate(templateName);
             template.process(data, resp.getWriter());
@@ -45,6 +48,11 @@ public class AppBaseServlet extends HttpServlet
             resp.sendError(500, "Template render error");
             //todo: log
         }
+    }
+
+    protected void render(String templateName, Map<String, Object> data, HttpServletResponse resp) throws IOException, ServletException
+    {
+        render(templateName, data, resp, null);
     }
 
     protected ServiceContainer getServiceContainer() throws ServletException
