@@ -74,7 +74,7 @@ public class AuthServlet extends AppBaseServlet
                 req.getSession().setAttribute("auth-error", "Incorrect email or password");
                 resp.sendRedirect(urlHelper.path("/signin"));
             } else {
-                UserSession.createAndStart(user, req.getRemoteAddr(), false, resp);
+                UserSession.createAndStart(user, req.getRemoteAddr(), resp);
                 resp.sendRedirect(urlHelper.path("/book/list"));
             }
         } catch (Exception e) {
@@ -97,7 +97,7 @@ public class AuthServlet extends AppBaseServlet
                 req.getSession().setAttribute("auth-invite", inviteCode);
                 resp.sendRedirect(urlHelper.path("/signup"));
             } else {
-                UserSession.createAndStart(result.getResult(), req.getRemoteAddr(), false, resp);
+                UserSession.createAndStart(result.getResult(), req.getRemoteAddr(), resp);
                 resp.sendRedirect(urlHelper.path("/book/list"));
             }
         } catch (Exception e) {

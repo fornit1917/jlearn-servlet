@@ -56,14 +56,12 @@ class UserSession
         return new UserSession(user);
     }
 
-    public static UserSession createAndStart(User user, String ip, boolean isRemember, HttpServletResponse resp)
+    public static UserSession createAndStart(User user, String ip, HttpServletResponse resp)
     {
         Cookie cookieId = new Cookie("uid", Integer.toString(user.getId()));
         Cookie cookieToken = new Cookie("token", UserSession.getTokenForUser(user, ip));
-        if (isRemember) {
-            cookieId.setMaxAge(2592000);
-            cookieToken.setMaxAge(2592000);
-        }
+        cookieId.setMaxAge(2592000);
+        cookieToken.setMaxAge(2592000);
         resp.addCookie(cookieId);
         resp.addCookie(cookieToken);
         return new UserSession(user);
