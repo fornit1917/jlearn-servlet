@@ -3,6 +3,8 @@ package jlearn.servlet;
 import jlearn.servlet.helper.UrlHelper;
 import jlearn.servlet.service.ServiceContainer;
 import jlearn.servlet.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -29,26 +31,28 @@ public class AuthFilter implements Filter
         HttpServletRequest httpReq = (HttpServletRequest) req;
         HttpServletResponse httpResp = (HttpServletResponse) resp;
 
+        String action = urlHelper.getRequestUriSegment(httpReq, 1);
+        if (action.equals("static")) {
+            filterChain.doFilter(req, resp);
+            return;
+        }
+
         try {
             UserSession userSession = UserSession.loadFromRequest(userService, httpReq, httpResp);
             req.setAttribute("user-session", userSession);
-            String action = urlHelper.getRequestUriSegment(httpReq, 1);
-            switch (action) {
-                case "signin":
-                case "signup":
-                    if (!userSession.isGuest()) {
-                        httpResp.sendRedirect(urlHelper.path("/book/list"));
-                        return;
-                    }
-                    break;
-                default:
-                    if (userSession.isGuest()) {
-                        httpResp.sendRedirect(urlHelper.path("/signin"));
-                        return;
-                    }
-                    break;
+            String uri = httpReq.getRequestURI();
+            String root = httpReq.getContextPath() + "/";
+            if (userSession.isGuest()) {
+                if (uri.equals(root) || action.equals("logout")) {
+                    httpResp.sendRedirect(urlHelper.path("/signin"));
+                } else if (action.equals("signin") || action.equals("signup")) {
+                    filterChain.doFilter(req, resp);
+                } else {
+                    httpResp.sendError(404);
+                }
+            } else {
+                filterChain.doFilter(req, resp);
             }
-            filterChain.doFilter(req, resp);
         } catch (SQLException e) {
             throw new ServletException(e);
         }

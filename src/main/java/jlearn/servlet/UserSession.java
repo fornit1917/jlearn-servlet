@@ -16,6 +16,10 @@ class UserSession
     public static UserSession loadFromRequest(UserService service, HttpServletRequest req, HttpServletResponse resp) throws SQLException {
         Cookie cookieId = null;
         Cookie cookieToken = null;
+        if (req.getCookies() == null) {
+            return new UserSession(null);
+        }
+
         for (Cookie c: req.getCookies()) {
             switch (c.getName()) {
                 case "uid":
