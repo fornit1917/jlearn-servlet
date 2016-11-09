@@ -24,7 +24,7 @@ public class AuthServlet extends AppBaseServlet
         }
         switch (action) {
             case "signin":
-                render("auth/signin.ftl", data, resp);
+                render("auth/signin.ftl", data, req, resp);
                 break;
             case "logout":
                 UserSession.destroy(resp);
@@ -41,7 +41,7 @@ public class AuthServlet extends AppBaseServlet
                     data.put("invite", inviteCode);
                     req.getSession().removeAttribute("auth-invite");
                 }
-                render("auth/signup.ftl", data, resp);
+                render("auth/signup.ftl", data, req, resp);
                 break;
             default:
                 resp.sendError(404);

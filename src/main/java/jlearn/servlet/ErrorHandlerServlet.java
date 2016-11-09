@@ -60,6 +60,6 @@ public class ErrorHandlerServlet extends AppBaseServlet
             logger.error("Error {} in {} {}", code, req.getMethod().toUpperCase(), uri, e);
         }
 
-        render("error.ftl", data, resp);
+        render("error.ftl", data, req, resp);
     }
 }

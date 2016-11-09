@@ -35,7 +35,7 @@ public class AppBaseServlet extends HttpServlet
         }
     }
 
-    protected void render(String templateName, Map<String, Object> data, HttpServletResponse resp, HttpServletRequest req) throws IOException, ServletException
+    protected void render(String templateName, Map<String, Object> data, HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException
     {
         data.put("urlHelper", urlHelper);
         if (req != null) {
@@ -45,14 +45,8 @@ public class AppBaseServlet extends HttpServlet
             Template template = templateConfig.getTemplate(templateName);
             template.process(data, resp.getWriter());
         } catch (IOException | TemplateException e) {
-            resp.sendError(500, "Template render error");
-            //todo: log
+            sendErrorByException(e);
         }
-    }
-
-    protected void render(String templateName, Map<String, Object> data, HttpServletResponse resp) throws IOException, ServletException
-    {
-        render(templateName, data, resp, null);
     }
 
     protected ServiceContainer getServiceContainer() throws ServletException

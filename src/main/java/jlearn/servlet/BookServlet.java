@@ -16,6 +16,6 @@ public class BookServlet extends AppBaseServlet
     {
         UserSession userSession = getUserSession(req);
         Map<String, Object> data = new HashMap<>();
-        render("book/list.ftl", data, resp, req);
+        render("book/list.ftl", data, req, resp);
     }
 }
