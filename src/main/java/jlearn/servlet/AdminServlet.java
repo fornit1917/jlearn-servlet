@@ -1,10 +1,7 @@
 package jlearn.servlet;
 
 
-import jlearn.servlet.AppBaseServlet;
-import jlearn.servlet.entity.User;
-import jlearn.servlet.service.CommandResult;
-import jlearn.servlet.service.InviteService;
+import jlearn.servlet.service.utility.CommandResult;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

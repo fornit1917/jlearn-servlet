@@ -11,6 +11,7 @@ public class User
     private String hpassw;
     private boolean isAdmin;
     private boolean isActive;
+    private String createDate;
 
     public boolean isAdmin() {
         return isAdmin;
@@ -58,5 +59,13 @@ public class User
 
     public void setHpassw(String hpassw) {
         this.hpassw = hpassw;
+    }
+
+    public String getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(String createDate) {
+        this.createDate = createDate;
     }
 }

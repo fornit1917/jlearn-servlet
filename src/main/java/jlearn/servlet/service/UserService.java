@@ -1,7 +1,12 @@
 package jlearn.servlet.service;
 
+import com.sun.corba.se.spi.servicecontext.UnknownServiceContext;
+import jlearn.servlet.dto.UserSearchCriteria;
 import jlearn.servlet.entity.User;
 import jlearn.servlet.helper.RandomHelper;
+import jlearn.servlet.service.utility.CommandResult;
+import jlearn.servlet.service.utility.PageRequest;
+import jlearn.servlet.service.utility.PageResult;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.sql.DataSource;
@@ -113,13 +118,61 @@ public class UserService
         User user = null;
         try (Connection conn = ds.getConnection()) {
             PreparedStatement st = conn.prepareStatement(
-                "SELECT id, email, is_active, is_admin, auth_key, hpassw FROM \"user\" WHERE id=?"
+                "SELECT id, email, is_active, is_admin, auth_key, hpassw, create_date FROM \"user\" WHERE id=?"
             );
             st.setInt(1, userId);
             ResultSet rs = st.executeQuery();
-            user = createUserFromResultSet(rs);
+            user = createOneUserFromResultSet(rs);
         }
         return user;
+    }
+
+    public PageResult<User> getAll(UserSearchCriteria criteria, PageRequest pageRequest) throws SQLException
+    {
+        String email = criteria.getEmail();
+        int state = criteria.getState();
+        if (email == null || email.isEmpty()) {
+            if (state == UserSearchCriteria.STATE_ALL) {
+                return getAll(pageRequest);
+            } else {
+                return getAllByIsActive(state == UserSearchCriteria.STATE_ACTIVE, pageRequest);
+            }
+        } else {
+            if (state == UserSearchCriteria.STATE_ALL) {
+                return getAllByEmail(email, pageRequest);
+            } else {
+                return getAllByEmailAndIsActive(email, state == UserSearchCriteria.STATE_ACTIVE, pageRequest);
+            }
+        }
+    }
+
+    private PageResult<User> getAll(PageRequest pageRequest) throws SQLException
+    {
+        String sql = "SELECT id, email, is_active, is_admin, create_date FROM \"user\" LIMIT ? OFFSET ?";
+        try (Connection conn = ds.getConnection()) {
+            PreparedStatement st = conn.prepareStatement(sql);
+            st.setInt(1, pageRequest.getPageSize());
+            st.setInt(2, pageRequest.getOffset());
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+
+            }
+        }
+    }
+
+    private PageResult<User> getAllByEmail(String email, PageRequest pageRequest) throws SQLException
+    {
+
+    }
+
+    private PageResult<User> getAllByIsActive(boolean isActive, PageRequest pageRequest) throws SQLException
+    {
+
+    }
+
+    private PageResult<User> getAllByEmailAndIsActive(String email, boolean isActive, PageRequest pageRequest) throws SQLException
+    {
+
     }
 
     private User getByEmail(String email) throws SQLException
@@ -127,11 +180,11 @@ public class UserService
         User user = null;
         try (Connection conn = ds.getConnection()) {
             PreparedStatement st = conn.prepareStatement(
-                "SELECT id, email, is_active, is_admin, auth_key, hpassw FROM \"user\" WHERE email=?"
+                "SELECT id, email, is_active, is_admin, auth_key, hpassw, create_date FROM \"user\" WHERE email=?"
             );
             st.setString(1, email);
             ResultSet rs = st.executeQuery();
-            user = createUserFromResultSet(rs);
+            user = createOneUserFromResultSet(rs);
         }
         return user;
     }
@@ -143,7 +196,7 @@ public class UserService
         return st.executeQuery().next();
     }
 
-    private User createUserFromResultSet(ResultSet rs) throws SQLException
+    private User createOneUserFromResultSet(ResultSet rs) throws SQLException
     {
         User user = null;
         if (rs.next()) {
@@ -155,6 +208,18 @@ public class UserService
             user.setActive(rs.getBoolean("is_active"));
             user.setHpassw(rs.getString("hpassw"));
         }
+        return user;
+    }
+
+    private User createUserForListFromResultSet(ResultSet rs) throws SQLException
+    {
+        User user = new User();
+        user = new User();
+        user.setId(rs.getInt("id"));
+        user.setEmail(rs.getString("email"));
+        user.setAdmin(rs.getBoolean("is_admin"));
+        user.setAdmin(rs.getBoolean("is_active"));
+        user.setCreateDate(rs.getString("create_date"));
         return user;
     }
 }

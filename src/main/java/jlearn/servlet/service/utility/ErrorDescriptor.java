@@ -1,4 +1,4 @@
-package jlearn.servlet.service;
+package jlearn.servlet.service.utility;
 
 import java.util.Map;
 
