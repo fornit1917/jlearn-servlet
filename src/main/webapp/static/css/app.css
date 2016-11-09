@@ -38,9 +38,29 @@
     vertical-align: text-top;
 }
 
+.invite-added-message {
+    font-size: 16px;
+    margin: 10px 0 20px 0;
+}
+.invite-added-message span {
+    font-size: 20px;
+}
+
+.invite-form .invite-code {
+    width: 500px;
+}
+
 @media (max-width: 992px) {
     .auth-form {
         float: none;
         margin: 100px auto;
+    }
+
+    .invite-form .invite-code {
+        width: 100%;
+    }
+    .invite-form .btn {
+        margin-top: 5px;
+        width: 100%
     }
 }

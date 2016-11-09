@@ -51,6 +51,12 @@ public class AuthFilter implements Filter
             } else {
                 if (action.equals("signin") || action.equals("signup")) {
                     httpResp.sendRedirect(urlHelper.path("/books/list"));
+                } else if (action.equals("admin")) {
+                    if (userSession.getUser().isAdmin()) {
+                        filterChain.doFilter(req, resp);
+                    } else {
+                        httpResp.sendError(403, "Access denied");
+                    }
                 } else {
                     filterChain.doFilter(req, resp);
                 }

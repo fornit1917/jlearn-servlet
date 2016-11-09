@@ -41,6 +41,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>adminServlet</servlet-name>
+        <servlet-class>jlearn.servlet.AdminServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>errorHandlerServlet</servlet-name>
         <servlet-class>jlearn.servlet.ErrorHandlerServlet</servlet-class>
     </servlet>
@@ -81,6 +86,11 @@
     <servlet-mapping>
         <servlet-name>bookServlet</servlet-name>
         <url-pattern>/book/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>adminServlet</servlet-name>
+        <url-pattern>/admin/*</url-pattern>
     </servlet-mapping>
 
     <error-page>

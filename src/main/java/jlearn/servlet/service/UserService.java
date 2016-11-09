@@ -1,6 +1,7 @@
 package jlearn.servlet.service;
 
 import jlearn.servlet.entity.User;
+import jlearn.servlet.helper.RandomHelper;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.sql.DataSource;
@@ -13,11 +14,13 @@ public class UserService
     private DataSource ds;
     private InviteService inviteService;
     private Pattern emailRegex;
+    private RandomHelper randomHelper;
 
     public UserService(DataSource ds)
     {
         this.ds = ds;
         emailRegex = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+        randomHelper = new RandomHelper();
     }
 
     public void setInviteService(InviteService inviteService)
@@ -25,8 +28,10 @@ public class UserService
         this.inviteService = inviteService;
     }
 
-    public CommandResult<User> register(String email, String password, String passwordRepeat, String invite) throws SQLException {
+    public CommandResult<User> register(String email, String password, String passwordRepeat, String inviteCode) throws SQLException
+    {
         email = email.trim().toLowerCase();
+        inviteCode = inviteCode.trim();
         if (email.isEmpty()) {
             return CommandResult.createErrorResult("Email is required");
         }
@@ -51,7 +56,7 @@ public class UserService
                 return CommandResult.createErrorResult("Email is already used");
             }
 
-            Integer inviteId = inviteService.getInviteIdIfFree(invite, conn);
+            Integer inviteId = inviteService.getInviteIdIfFree(inviteCode, conn);
             if (inviteId == null) {
                 return CommandResult.createErrorResult("Incorrect or busy invite code");
             }
@@ -61,7 +66,7 @@ public class UserService
             user.setActive(true);
             user.setAdmin(false);
             user.setHpassw(BCrypt.hashpw(password, BCrypt.gensalt()));
-            user.setAuthKey(BCrypt.gensalt());
+            user.setAuthKey(randomHelper.getRandomString(32));
 
             PreparedStatement st = conn.prepareStatement(
                 "INSERT INTO \"user\" (email, is_active, is_admin, hpassw, auth_key, invite_id) " +
