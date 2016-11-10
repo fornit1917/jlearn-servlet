@@ -8,6 +8,26 @@
 
 <h1>User list</h1>
 
+<form class="form form-inline user-filter-form" id="user-filter-form" method="GET">
+    <div class="form-group">
+        <input class="form-control user-filter-email" type="text" name="email" value="${criteria.getEmail()}" placeholder="Email"/>
+    </div>
+    <div class="form-group">
+        <label for="state">State</label>
+        <select name="state" id="state" class="form-control user-filter-state">
+            <option value="1" ${(criteria.getState() == 1)?then("selected", "")}>All</option>
+            <option value="2" ${(criteria.getState() == 2)?then("selected", "")}>Only active</option>
+            <option value="3" ${(criteria.getState() == 3)?then("selected", "")}>Only inactive</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Apply filter</button>
+</form>
+<script>
+    $(function () {
+        UserFilterForm.init("#user-filter-form");
+    });
+</script>
+
 <#if ((users.getSlice()?size) > 0) >
     <table class="table table-striped user-list">
         <thead>
