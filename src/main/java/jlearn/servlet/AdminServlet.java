@@ -95,7 +95,7 @@ public class AdminServlet extends AppBaseServlet
         int pageNum = valueHelper.tryParseInt(req.getParameter("page"));
         int state = valueHelper.tryParseInt(req.getParameter("state"), UserSearchCriteria.STATE_ALL);
         UserSearchCriteria criteria = new UserSearchCriteria(email, state);
-        PageRequest pageRequest = new PageRequest(pageNum, 20);
+        PageRequest pageRequest = new PageRequest(pageNum, 1);
         try {
             PageResult<User> users = getServiceContainer().getUserService().getAll(criteria, pageRequest);
             data.put("users", users);

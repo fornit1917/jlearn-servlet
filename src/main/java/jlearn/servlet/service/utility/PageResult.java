@@ -36,4 +36,9 @@ public class PageResult<T>
     {
         return originRequest.getOffset() < totalRecords;
     }
+
+    public int getPageNum()
+    {
+        return originRequest.getPageNum();
+    }
 }

@@ -3,6 +3,7 @@
 <#-- @ftlvariable name="users" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.entity.User>" -->
 
 <#include "../inner_base.ftl">
+<#include "../_pager.ftl">
 
 <#macro inner_page_content>
 
@@ -57,6 +58,7 @@
             </#list>
         </tbody>
     </table>
+    <@pager pageResult=users/>
 <#else>
     <p>Your request does not have any result</p>
 </#if>
