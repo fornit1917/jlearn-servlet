@@ -11,7 +11,7 @@ public class UserSearchCriteria
 
     public UserSearchCriteria(String email, int state)
     {
-        this.email = email;
+        this.email = email == null ? "" : email;
         this.state = state;
     }
 

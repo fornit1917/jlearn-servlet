@@ -4,6 +4,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import jlearn.servlet.helper.UrlHelper;
+import jlearn.servlet.helper.ValueHelper;
 import jlearn.servlet.service.ServiceContainer;
 
 import javax.servlet.ServletConfig;
@@ -21,12 +22,14 @@ public class AppBaseServlet extends HttpServlet
     private Configuration templateConfig;
 
     protected UrlHelper urlHelper;
+    protected ValueHelper valueHelper;
 
     @Override
     public void init(ServletConfig config) throws ServletException
     {
         super.init(config);
         urlHelper = new UrlHelper(getServletContext());
+        valueHelper = new ValueHelper();
         templateConfig = new Configuration(Configuration.VERSION_2_3_25);
         try {
             templateConfig.setDirectoryForTemplateLoading(new File(getServletContext().getRealPath("WEB-INF/templates")));

@@ -7,8 +7,8 @@ public class PageRequest
 
     public PageRequest(int pageNum, int pageSize)
     {
-        this.pageNum = pageNum;
-        this.pageSize = pageSize;
+        this.pageNum = pageNum < 1 ? 1 : pageNum;
+        this.pageSize = pageSize < 1 ? 1 : pageSize;
     }
 
     public int getPageSize()

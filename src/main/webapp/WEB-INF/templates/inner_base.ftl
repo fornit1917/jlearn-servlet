@@ -47,7 +47,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li class="${(menuAdminUser!false)?then("active", "")}">
-                                <a href="#"><span class="glyphicon glyphicon-user"></span> Users</a>
+                                <a href="${urlHelper.path("/admin/user-list")}"><span class="glyphicon glyphicon-user"></span> Users</a>
                             </li>
                             <li class="${(menuAdminInvite!false)?then("active", "")}">
                                 <a href="${urlHelper.path("/admin/invite")}"><span class="glyphicon glyphicon-hand-right"></span> Add invite</a>

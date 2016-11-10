@@ -7,10 +7,13 @@ import jlearn.servlet.helper.RandomHelper;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
+import jlearn.servlet.service.utility.QueryBuilder;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -131,48 +134,41 @@ public class UserService
     {
         String email = criteria.getEmail();
         int state = criteria.getState();
-        if (email == null || email.isEmpty()) {
-            if (state == UserSearchCriteria.STATE_ALL) {
-                return getAll(pageRequest);
-            } else {
-                return getAllByIsActive(state == UserSearchCriteria.STATE_ACTIVE, pageRequest);
-            }
-        } else {
-            if (state == UserSearchCriteria.STATE_ALL) {
-                return getAllByEmail(email, pageRequest);
-            } else {
-                return getAllByEmailAndIsActive(email, state == UserSearchCriteria.STATE_ACTIVE, pageRequest);
-            }
+        QueryBuilder queryBuilder = new QueryBuilder().table("\"user\"");
+        if (email != null && !email.isEmpty()) {
+            queryBuilder.andWhere("email = ?", email);
         }
-    }
-
-    private PageResult<User> getAll(PageRequest pageRequest) throws SQLException
-    {
-        String sql = "SELECT id, email, is_active, is_admin, create_date FROM \"user\" LIMIT ? OFFSET ?";
+        if (state == UserSearchCriteria.STATE_ACTIVE) {
+            queryBuilder.andWhere("is_active = ?", true);
+        } else if (state == UserSearchCriteria.STATE_INACTIVE) {
+            queryBuilder.andWhere("is_active = ?", false);
+        }
         try (Connection conn = ds.getConnection()) {
-            PreparedStatement st = conn.prepareStatement(sql);
-            st.setInt(1, pageRequest.getPageSize());
-            st.setInt(2, pageRequest.getOffset());
-            ResultSet rs = st.executeQuery();
+            //get total count
+            PreparedStatement ps = queryBuilder.selectCount().createPreparedStatement(conn);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            int totalCount = rs.getInt(1);
+
+            //get records
+            ps = queryBuilder.selectColumns("id", "email", "is_active", "is_admin", "create_date")
+                .limit(pageRequest.getPageSize())
+                .offset(pageRequest.getOffset())
+                .createPreparedStatement(conn);
+            rs = ps.executeQuery();
+            List<User> users = new ArrayList<>(pageRequest.getPageSize());
             while (rs.next()) {
-
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setEmail(rs.getString("email"));
+                user.setActive(rs.getBoolean("is_active"));
+                user.setAdmin(rs.getBoolean("is_admin"));
+                user.setCreateDate(rs.getString("create_date"));
+                users.add(user);
             }
+
+            return new PageResult<>(users, totalCount, pageRequest);
         }
-    }
-
-    private PageResult<User> getAllByEmail(String email, PageRequest pageRequest) throws SQLException
-    {
-
-    }
-
-    private PageResult<User> getAllByIsActive(boolean isActive, PageRequest pageRequest) throws SQLException
-    {
-
-    }
-
-    private PageResult<User> getAllByEmailAndIsActive(String email, boolean isActive, PageRequest pageRequest) throws SQLException
-    {
-
     }
 
     private User getByEmail(String email) throws SQLException
@@ -208,18 +204,6 @@ public class UserService
             user.setActive(rs.getBoolean("is_active"));
             user.setHpassw(rs.getString("hpassw"));
         }
-        return user;
-    }
-
-    private User createUserForListFromResultSet(ResultSet rs) throws SQLException
-    {
-        User user = new User();
-        user = new User();
-        user.setId(rs.getInt("id"));
-        user.setEmail(rs.getString("email"));
-        user.setAdmin(rs.getBoolean("is_admin"));
-        user.setAdmin(rs.getBoolean("is_active"));
-        user.setCreateDate(rs.getString("create_date"));
         return user;
     }
 }
