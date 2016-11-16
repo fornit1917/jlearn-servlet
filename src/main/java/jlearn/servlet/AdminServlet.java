@@ -87,7 +87,7 @@ public class AdminServlet extends AppBaseServlet
 
     private void doGetUserList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         data.put("menuAdmin", true);
         data.put("menuAdminUser", true);
 
@@ -95,7 +95,7 @@ public class AdminServlet extends AppBaseServlet
         int pageNum = valueHelper.tryParseInt(req.getParameter("page"));
         int state = valueHelper.tryParseInt(req.getParameter("state"), UserSearchCriteria.STATE_ALL);
         UserSearchCriteria criteria = new UserSearchCriteria(email, state);
-        PageRequest pageRequest = new PageRequest(pageNum, 1);
+        PageRequest pageRequest = new PageRequest(pageNum, 20);
         try {
             PageResult<User> users = getServiceContainer().getUserService().getAll(criteria, pageRequest);
             data.put("users", users);

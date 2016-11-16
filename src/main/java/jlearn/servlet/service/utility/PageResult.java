@@ -34,7 +34,7 @@ public class PageResult<T>
 
     public boolean hasNext()
     {
-        return originRequest.getOffset() < totalRecords;
+        return originRequest.getPageNum() < getTotalPages();
     }
 
     public int getPageNum()
