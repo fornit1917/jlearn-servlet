@@ -47,7 +47,7 @@
                     <td>${u.getId()}</td>
                     <td>${u.getEmail()}</td>
                     <td>${u.isAdmin()?then("Yes", "No")}</td>
-                    <td>${u.getCreateDate()}</td>
+                    <td>${u.getCreateDate("yyyy-MM-dd")}</td>
                     <td>
                         <#if u.isActive() >
                             <form method="POST" action="${setActiveUrl}">

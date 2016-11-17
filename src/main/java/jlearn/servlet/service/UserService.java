@@ -163,7 +163,7 @@ public class UserService
                 user.setEmail(rs.getString("email"));
                 user.setActive(rs.getBoolean("is_active"));
                 user.setAdmin(rs.getBoolean("is_admin"));
-                user.setCreateDate(rs.getString("create_date"));
+                user.setCreateDate(rs.getDate("create_date"));
                 users.add(user);
             }
 
