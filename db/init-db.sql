@@ -19,3 +19,31 @@ CREATE TABLE invite
   code VARCHAR(64) NOT NULL
 );
 CREATE UNIQUE INDEX invite_code_uindex ON invite (code);
+
+CREATE TABLE book
+(
+  id INTEGER PRIMARY KEY NOT NULL,
+  author VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  user_id INTEGER NOT NULL,
+  book_type SMALLINT NOT NULL,
+  status SMALLINT DEFAULT 1 NOT NULL,
+  CONSTRAINT book_user_fk FOREIGN KEY (user_id) REFERENCES "user" (id)
+);
+CREATE INDEX book_author_index ON book (author);
+CREATE INDEX book_title_index ON book (title);
+CREATE INDEX book_book_type_index ON book (book_type);
+CREATE INDEX book_status_index ON book (status);
+
+CREATE TABLE book_reading
+(
+  id INTEGER PRIMARY KEY NOT NULL,
+  book_id INTEGER NOT NULL,
+  status SMALLINT NOT NULL,
+  start_month SMALLINT,
+  start_year INTEGER,
+  end_month SMALLINT,
+  end_year INTEGER,
+  CONSTRAINT book_reading_book_fk FOREIGN KEY (book_id) REFERENCES book (id)
+);
+CREATE INDEX book_reading_end_year_index ON book_reading (end_year);
