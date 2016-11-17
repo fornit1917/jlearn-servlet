@@ -171,6 +171,16 @@ public class UserService
         }
     }
 
+    public void setActive(int userId, boolean isActive) throws SQLException
+    {
+        try (Connection conn = ds.getConnection()) {
+            PreparedStatement st = conn.prepareStatement("UPDATE \"user\" SET is_active=? WHERE id=?");
+            st.setBoolean(1, isActive);
+            st.setInt(2, userId);
+            st.executeUpdate();
+        }
+    }
+
     private User getByEmail(String email) throws SQLException
     {
         User user = null;

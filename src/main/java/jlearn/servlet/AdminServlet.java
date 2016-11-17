@@ -45,6 +45,9 @@ public class AdminServlet extends AppBaseServlet
             case "invite":
                 doPostInvite(req, resp);
                 break;
+            case "user-set-active":
+                doPostUserSetActive(req, resp);
+                break;
             default:
                 resp.sendError(404);
                 break;
@@ -102,6 +105,19 @@ public class AdminServlet extends AppBaseServlet
             data.put("criteria", criteria);
             render("admin/user-list.ftl", data, req, resp);
         } catch(SQLException e) {
+            sendErrorByException(e);
+        }
+    }
+
+    private void doPostUserSetActive(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        int userId = valueHelper.tryParseInt(req.getParameter("id"));
+        boolean isActive = req.getParameter("active") != null && req.getParameter("active").equals("1");
+        String redirectUrl = req.getParameter("redirectUrl") != null ? req.getParameter("redirectUrl") : urlHelper.path("/admin/user-list");
+        try {
+            getServiceContainer().getUserService().setActive(userId, isActive);
+            resp.sendRedirect(redirectUrl);
+        } catch (SQLException e) {
             sendErrorByException(e);
         }
     }
