@@ -30,4 +30,9 @@ public class UrlHelper
         String[] parts = uri.split("/");
         return parts.length > num ? parts[num] : "";
     }
+
+    public ParsedUrl parseUrl(String url)
+    {
+        return new ParsedUrl(url);
+    }
 }

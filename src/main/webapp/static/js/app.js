@@ -17,3 +17,15 @@ AddInviteForm._setButtonText = function ($code, $button) {
         $button.text("Generate");
     }
 };
+
+
+
+var UserFilterForm = {};
+
+UserFilterForm.init = function (nodeOrSelector) {
+    var $form = $(nodeOrSelector);
+    var $state = $form.find(".user-filter-state");
+    $state.on("change", function () {
+        $form.submit();
+    });
+}

@@ -1,5 +1,9 @@
 package jlearn.servlet.entity;
 
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 /**
  * Created by Vit on 02.11.2016.
  */
@@ -11,6 +15,7 @@ public class User
     private String hpassw;
     private boolean isAdmin;
     private boolean isActive;
+    private Date createDate;
 
     public boolean isAdmin() {
         return isAdmin;
@@ -58,5 +63,18 @@ public class User
 
     public void setHpassw(String hpassw) {
         this.hpassw = hpassw;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public String getCreateDate(String format) {
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        return formatter.format(createDate);
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 }

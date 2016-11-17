@@ -50,6 +50,18 @@
     width: 500px;
 }
 
+.user-filter-form {
+    margin: 10px 0 20px 0;
+}
+.user-filter-email,
+.user-filter-state {
+    margin-right: 20px;
+}
+
+.user-list .disabled {
+    color: #bbb;
+}
+
 @media (max-width: 992px) {
     .auth-form {
         float: none;
@@ -63,4 +75,9 @@
         margin-top: 5px;
         width: 100%
     }
+
+    .user-filter-form .btn {
+        width: 100%;
+    }
+
 }

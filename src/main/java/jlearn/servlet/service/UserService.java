@@ -1,11 +1,19 @@
 package jlearn.servlet.service;
 
+import com.sun.corba.se.spi.servicecontext.UnknownServiceContext;
+import jlearn.servlet.dto.UserSearchCriteria;
 import jlearn.servlet.entity.User;
 import jlearn.servlet.helper.RandomHelper;
+import jlearn.servlet.service.utility.CommandResult;
+import jlearn.servlet.service.utility.PageRequest;
+import jlearn.servlet.service.utility.PageResult;
+import jlearn.servlet.service.utility.QueryBuilder;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,13 +121,64 @@ public class UserService
         User user = null;
         try (Connection conn = ds.getConnection()) {
             PreparedStatement st = conn.prepareStatement(
-                "SELECT id, email, is_active, is_admin, auth_key, hpassw FROM \"user\" WHERE id=?"
+                "SELECT id, email, is_active, is_admin, auth_key, hpassw, create_date FROM \"user\" WHERE id=?"
             );
             st.setInt(1, userId);
             ResultSet rs = st.executeQuery();
-            user = createUserFromResultSet(rs);
+            user = createOneUserFromResultSet(rs);
         }
         return user;
+    }
+
+    public PageResult<User> getAll(UserSearchCriteria criteria, PageRequest pageRequest) throws SQLException
+    {
+        String email = criteria.getEmail();
+        int state = criteria.getState();
+        QueryBuilder queryBuilder = new QueryBuilder().table("\"user\"");
+        if (email != null && !email.isEmpty()) {
+            queryBuilder.andWhere("email = ?", email);
+        }
+        if (state == UserSearchCriteria.STATE_ACTIVE) {
+            queryBuilder.andWhere("is_active = ?", true);
+        } else if (state == UserSearchCriteria.STATE_INACTIVE) {
+            queryBuilder.andWhere("is_active = ?", false);
+        }
+        try (Connection conn = ds.getConnection()) {
+            //get total count
+            PreparedStatement ps = queryBuilder.selectCount().createPreparedStatement(conn);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            int totalCount = rs.getInt(1);
+
+            //get records
+            ps = queryBuilder.selectColumns("id", "email", "is_active", "is_admin", "create_date")
+                .limit(pageRequest.getPageSize())
+                .offset(pageRequest.getOffset())
+                .createPreparedStatement(conn);
+            rs = ps.executeQuery();
+            List<User> users = new ArrayList<>(pageRequest.getPageSize());
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setEmail(rs.getString("email"));
+                user.setActive(rs.getBoolean("is_active"));
+                user.setAdmin(rs.getBoolean("is_admin"));
+                user.setCreateDate(rs.getDate("create_date"));
+                users.add(user);
+            }
+
+            return new PageResult<>(users, totalCount, pageRequest);
+        }
+    }
+
+    public void setActive(int userId, boolean isActive) throws SQLException
+    {
+        try (Connection conn = ds.getConnection()) {
+            PreparedStatement st = conn.prepareStatement("UPDATE \"user\" SET is_active=? WHERE id=?");
+            st.setBoolean(1, isActive);
+            st.setInt(2, userId);
+            st.executeUpdate();
+        }
     }
 
     private User getByEmail(String email) throws SQLException
@@ -127,11 +186,11 @@ public class UserService
         User user = null;
         try (Connection conn = ds.getConnection()) {
             PreparedStatement st = conn.prepareStatement(
-                "SELECT id, email, is_active, is_admin, auth_key, hpassw FROM \"user\" WHERE email=?"
+                "SELECT id, email, is_active, is_admin, auth_key, hpassw, create_date FROM \"user\" WHERE email=?"
             );
             st.setString(1, email);
             ResultSet rs = st.executeQuery();
-            user = createUserFromResultSet(rs);
+            user = createOneUserFromResultSet(rs);
         }
         return user;
     }
@@ -143,7 +202,7 @@ public class UserService
         return st.executeQuery().next();
     }
 
-    private User createUserFromResultSet(ResultSet rs) throws SQLException
+    private User createOneUserFromResultSet(ResultSet rs) throws SQLException
     {
         User user = null;
         if (rs.next()) {

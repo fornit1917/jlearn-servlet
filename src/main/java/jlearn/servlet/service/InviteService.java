@@ -1,6 +1,7 @@
 package jlearn.servlet.service;
 
 import jlearn.servlet.helper.RandomHelper;
+import jlearn.servlet.service.utility.CommandResult;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
