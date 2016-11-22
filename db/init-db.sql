@@ -26,14 +26,11 @@ CREATE TABLE book
   author VARCHAR(255) NOT NULL,
   title VARCHAR(255) NOT NULL,
   user_id INTEGER NOT NULL,
-  book_type SMALLINT NOT NULL,
   status SMALLINT DEFAULT 1 NOT NULL,
+  is_fiction BOOLEAN NOT NULL,
   CONSTRAINT book_user_fk FOREIGN KEY (user_id) REFERENCES "user" (id)
 );
-CREATE INDEX book_author_index ON book (author);
-CREATE INDEX book_title_index ON book (title);
-CREATE INDEX book_book_type_index ON book (book_type);
-CREATE INDEX book_status_index ON book (status);
+CREATE INDEX book_user_id_index ON book (user_id);
 
 CREATE TABLE book_reading
 (

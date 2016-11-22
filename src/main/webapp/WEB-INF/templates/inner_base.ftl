@@ -13,7 +13,7 @@
 
 <#macro body_content>
 <nav class="navbar navbar-default">
-    <div class="container-fluid">
+    <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
                 <span class="sr-only">Toggle navigation</span>
@@ -34,7 +34,7 @@
                         <li><a href="${urlHelper.path("/book/list")}"><span class="glyphicon glyphicon-list"></span> All</a></li>
                         <li><a href="${urlHelper.path("/book/list/unread")}"><span class="glyphicon glyphicon-tasks"></span> Unread</a></li>
                         <li role="separator" class="divider"></li>
-                        <li class="${(menuBookAdd!false)?then("active", "")}"><a href="#"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
+                        <li class="${(menuBookAdd!false)?then("active", "")}"><a href="${urlHelper.path("/book/add")}"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
                     </ul>
                 </li>
                 <li class="${(menuHistory!false)?then("active", "")}">

@@ -5,6 +5,7 @@ public class ServiceContainer
 {
     private UserService userService;
     private InviteService inviteService;
+    private BookService bookService;
 
     public UserService getUserService()
     {
@@ -24,5 +25,15 @@ public class ServiceContainer
     public void setInviteService(InviteService inviteService)
     {
         this.inviteService = inviteService;
+    }
+
+    public BookService getBookService()
+    {
+        return bookService;
+    }
+
+    public void setBookService(BookService bookService)
+    {
+        this.bookService = bookService;
     }
 }
