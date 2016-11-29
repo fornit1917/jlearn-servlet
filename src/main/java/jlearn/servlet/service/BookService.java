@@ -72,6 +72,17 @@ public class BookService
         return CommandResult.createOkResult(book);
     }
 
+    public void deleteBook(int userId, int bookId) throws SQLException
+    {
+        try (Connection conn = ds.getConnection()) {
+            String sql = "DELETE from book WHERE user_id=? AND id=?";
+            PreparedStatement st = conn.prepareStatement(sql);
+            st.setInt(1, userId);
+            st.setInt(2, bookId);
+            st.executeUpdate();
+        }
+    }
+
     private int insertBook(int userId, Book book, Connection conn) throws SQLException
     {
         String sql = "INSERT INTO book (user_id, author, title, is_fiction, status) VALUES (?,?,?,?,?)";

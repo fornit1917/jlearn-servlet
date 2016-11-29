@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class BookServlet extends AppBaseServlet
 {
-    private final static String FLASH_ADD_SUCCESSFULLY = "book-add-successfully";
+    private final static String FLASH_SUCCESSFULLY = "book-successfully";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -47,6 +47,9 @@ public class BookServlet extends AppBaseServlet
             case "add":
                 doPostBookAdd(req, resp);
                 break;
+            case "delete":
+                doPostBookDelete(req, resp);
+                break;
             default:
                 resp.sendError(404);
         }
@@ -61,9 +64,9 @@ public class BookServlet extends AppBaseServlet
         criteria.setUserId(getUserSession(req).getUser().getId());
         PageRequest pageRequest = new PageRequest(pageNum, 20);
 
-        String adddedMessage = (String)req.getSession().getAttribute(FLASH_ADD_SUCCESSFULLY);
+        String adddedMessage = (String)req.getSession().getAttribute(FLASH_SUCCESSFULLY);
         if (adddedMessage != null) {
-            req.getSession().removeAttribute(FLASH_ADD_SUCCESSFULLY);
+            req.getSession().removeAttribute(FLASH_SUCCESSFULLY);
             data.put("message", adddedMessage);
         }
 
@@ -88,7 +91,6 @@ public class BookServlet extends AppBaseServlet
 
     private void doPostBookAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        req.setCharacterEncoding("UTF-8");
         Book book = new Book();
         book.setTitle(req.getParameter("title"));
         book.setAuthor(req.getParameter("author"));
@@ -105,9 +107,27 @@ public class BookServlet extends AppBaseServlet
                 data.put("error", result.getError().getMessage());
                 render("book/add.ftl", data, req, resp);
             } else {
-                req.getSession().setAttribute(FLASH_ADD_SUCCESSFULLY, "The Book has been added successfully");
+                req.getSession().setAttribute(FLASH_SUCCESSFULLY, "The Book has been added successfully");
                 resp.sendRedirect(urlHelper.path("/book/list"));
             }
+        } catch (SQLException e) {
+            sendErrorByException(e);
+        }
+    }
+
+    private void doPostBookDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        int userId = getUserSession(req).getUser().getId();
+        int bookId = valueHelper.tryParseInt(req.getParameter("id"), 0);
+        String redirectUrl = req.getParameter("redirectUrl");
+        if (redirectUrl == null)  {
+            redirectUrl = urlHelper.path("/book/list");
+        }
+
+        try {
+            getServiceContainer().getBookService().deleteBook(userId, bookId);
+            req.getSession().setAttribute(FLASH_SUCCESSFULLY, "Book has been deleted successfully");
+            resp.sendRedirect(redirectUrl);
         } catch (SQLException e) {
             sendErrorByException(e);
         }

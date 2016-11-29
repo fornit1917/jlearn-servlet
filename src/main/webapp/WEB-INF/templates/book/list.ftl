@@ -24,13 +24,22 @@
             <th>Actions</th>
         </tr>
         </thead>
+        <#assign deleteAction = urlHelper.path("/book/delete") />
         <tbody>
             <#list books.getSlice() as b >
             <tr>
                 <td>${b.getAuthor()}</td>
                 <td>${b.getTitle()}</td>
                 <td>${b.getStatus().toString()}</td>
-                <td></td>
+                <td>
+                    <form method="post" action="${deleteAction}">
+                        <input type="hidden" name="id" value="${b.getId()}">
+                        <input type="hidden" name="redirectUrl" value="${requestUrl}">
+                        <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                    </form>
+                </td>
             </tr>
             </#list>
         </tbody>
