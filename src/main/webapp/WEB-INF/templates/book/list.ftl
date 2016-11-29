@@ -32,7 +32,10 @@
                 <td>${b.getTitle()}</td>
                 <td>${b.getStatus().toString()}</td>
                 <td>
-                    <form method="post" action="${deleteAction}">
+                    <a href="${urlHelper.path("/book/update?id=") + b.getId()}" class="btn btn-sm btn-warning" title="Edit">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </a>
+                    <form method="post" action="${deleteAction}" class="action-form">
                         <input type="hidden" name="id" value="${b.getId()}">
                         <input type="hidden" name="redirectUrl" value="${requestUrl}">
                         <button type="submit" class="btn btn-sm btn-danger" title="Delete">

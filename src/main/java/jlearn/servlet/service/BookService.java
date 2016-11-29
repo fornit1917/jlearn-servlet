@@ -7,6 +7,7 @@ import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
 import jlearn.servlet.service.utility.QueryBuilder;
+import jlearn.servlet.service.utility.ErrorDescriptor;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -43,11 +44,7 @@ public class BookService
             rs = st.executeQuery();
             List<Book> books = new ArrayList<>(pageRequest.getPageSize());
             while (rs.next()) {
-                Book book = new Book();
-                book.setId(rs.getInt("id"));
-                book.setAuthor(rs.getString("author"));
-                book.setTitle(rs.getString("title"));
-                book.setStatus(BookStatus.getByValue(rs.getInt("status")));
+                Book book = mapResultSetRowToBook(rs);
                 books.add(book);
             }
 
@@ -57,11 +54,9 @@ public class BookService
 
     public CommandResult<Book> addBook(int userId, Book book) throws SQLException
     {
-        if (book.getAuthor().isEmpty()) {
-            return CommandResult.createErrorResult("Author is required");
-        }
-        if (book.getTitle().isEmpty()) {
-            return CommandResult.createErrorResult("Title is required");
+        ErrorDescriptor validateError = validateBook(book);
+        if (validateError != null) {
+            return CommandResult.createErrorResult(validateError);
         }
 
         try (Connection conn = ds.getConnection()) {
@@ -70,6 +65,34 @@ public class BookService
         }
 
         return CommandResult.createOkResult(book);
+    }
+
+    public CommandResult<Book> editBook(Book book) throws SQLException
+    {
+        ErrorDescriptor validateError = validateBook(book);
+        if (validateError != null) {
+            return CommandResult.createErrorResult(validateError);
+        }
+
+        try (Connection conn = ds.getConnection()) {
+            updateBook(book, conn);
+            return CommandResult.createOkResult(book);
+        }
+    }
+
+    public Book getBookByIdAndUser(int bookId, int userId) throws SQLException
+    {
+        String sql = "SELECT * FROM book WHERE id=? AND user_id=?";
+        try (Connection conn = ds.getConnection()) {
+            PreparedStatement st = conn.prepareStatement(sql);
+            st.setInt(1, bookId);
+            st.setInt(2, userId);
+            ResultSet rs = st.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
+            return mapResultSetRowToBook(rs);
+        }
     }
 
     public void deleteBook(int userId, int bookId) throws SQLException
@@ -81,6 +104,17 @@ public class BookService
             st.setInt(2, bookId);
             st.executeUpdate();
         }
+    }
+
+    private ErrorDescriptor validateBook(Book book)
+    {
+        if (book.getAuthor().isEmpty()) {
+            return new ErrorDescriptor("Author is required");
+        }
+        if (book.getTitle().isEmpty()) {
+            return new ErrorDescriptor("Title is required");
+        }
+        return null;
     }
 
     private int insertBook(int userId, Book book, Connection conn) throws SQLException
@@ -109,6 +143,17 @@ public class BookService
             st.setBoolean(3, book.isFiction());
             st.setInt(4, book.getStatus().getValue());
             st.setInt(5, book.getId());
+            st.executeUpdate();
         }
+    }
+
+    private Book mapResultSetRowToBook(ResultSet rs) throws SQLException
+    {
+        Book book = new Book();
+        book.setId(rs.getInt("id"));
+        book.setAuthor(rs.getString("author"));
+        book.setTitle(rs.getString("title"));
+        book.setStatus(BookStatus.getByValue(rs.getInt("status")));
+        return book;
     }
 }

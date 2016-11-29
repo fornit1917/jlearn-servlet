@@ -62,6 +62,15 @@
     color: #bbb;
 }
 
+.action-form {
+    display: inline-block;
+}
+
+.action-link {
+
+}
+
+
 .book-form {
     max-width: 800px;
     margin: 10px 0 20px 0;

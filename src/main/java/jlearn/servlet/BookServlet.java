@@ -3,18 +3,14 @@ package jlearn.servlet;
 import jlearn.servlet.dto.BookSearchCriteria;
 import jlearn.servlet.entity.Book;
 import jlearn.servlet.entity.BookStatus;
-import jlearn.servlet.entity.User;
-import jlearn.servlet.helper.ValueHelper;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +18,7 @@ import java.util.Map;
 public class BookServlet extends AppBaseServlet
 {
     private final static String FLASH_SUCCESSFULLY = "book-successfully";
+    private final static String FLASH_ERROR = "book-error";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -33,6 +30,9 @@ public class BookServlet extends AppBaseServlet
                 break;
             case "add":
                 doGetBookAdd(req, resp);
+                break;
+            case "update":
+                doGetBookUpdate(req, resp);
                 break;
             default:
                 resp.sendError(404);
@@ -49,6 +49,9 @@ public class BookServlet extends AppBaseServlet
                 break;
             case "delete":
                 doPostBookDelete(req, resp);
+                break;
+            case "update":
+                doPostBookUpdate(req, resp);
                 break;
             default:
                 resp.sendError(404);
@@ -92,10 +95,7 @@ public class BookServlet extends AppBaseServlet
     private void doPostBookAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
         Book book = new Book();
-        book.setTitle(req.getParameter("title"));
-        book.setAuthor(req.getParameter("author"));
-        book.setStatus(BookStatus.getByValue(valueHelper.tryParseInt(req.getParameter("status"), 0)));
-        book.setFiction(req.getParameter("is_fiction") != null);
+        popupateBookByRequest(req, book);
 
         int userId = getUserSession(req).getUser().getId();
 
@@ -132,4 +132,60 @@ public class BookServlet extends AppBaseServlet
             sendErrorByException(e);
         }
     }
+
+    private void doGetBookUpdate(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        int userId = getUserSession(req).getUser().getId();
+        int bookId = valueHelper.tryParseInt(req.getParameter("id"), 0);
+        Map<String, Object> data = new HashMap<>();
+        data.put("statuses", BookStatus.values());
+        try {
+            Book book = getServiceContainer().getBookService().getBookByIdAndUser(bookId, userId);
+            if (book == null) {
+                resp.sendError(404);
+                return;
+            }
+            data.put("book", book);
+            render("book/update.ftl", data, req, resp);
+        } catch (SQLException e) {
+            sendErrorByException(e);
+        }
+    }
+
+    private void doPostBookUpdate(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        int userId = getUserSession(req).getUser().getId();
+        int bookId = valueHelper.tryParseInt(req.getParameter("id"), 0);
+        Map<String, Object> data = new HashMap<>();
+        data.put("statuses", BookStatus.values());
+
+        try {
+            Book book = getServiceContainer().getBookService().getBookByIdAndUser(bookId, userId);
+            if (book == null) {
+                resp.sendError(404);
+                return;
+            }
+            data.put("book", book);
+            popupateBookByRequest(req, book);
+            CommandResult<Book> result = getServiceContainer().getBookService().editBook(book);
+            if (result.isError()) {
+                data.put("error", result.getError().getMessage());
+            } else {
+                data.put("success", true);
+            }
+            render("book/update.ftl", data, req, resp);
+
+        } catch (SQLException e) {
+            sendErrorByException(e);
+        }
+    }
+
+    private void popupateBookByRequest(HttpServletRequest req, Book book)
+    {
+        book.setTitle(req.getParameter("title"));
+        book.setAuthor(req.getParameter("author"));
+        book.setStatus(BookStatus.getByValue(valueHelper.tryParseInt(req.getParameter("status"), 0)));
+        book.setFiction(req.getParameter("is_fiction") != null);
+    }
+
 }

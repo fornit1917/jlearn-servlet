@@ -39,7 +39,7 @@
         <div class="col-sm-6">
             <select name="status" class="form-control" id="selectStatus" name="status">
                 <#list statuses as status >
-                    <option value="${status.getValue()}">${status}</option>
+                    <option ${(book.getStatus().getValue() == status.getValue())?then("selected", "")} value="${status.getValue()}">${status}</option>
                 </#list>
             </select>
         </div>

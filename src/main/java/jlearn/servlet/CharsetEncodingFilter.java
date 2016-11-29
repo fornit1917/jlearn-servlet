@@ -1,13 +1,9 @@
 package jlearn.servlet;
 
 import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * Created by Vit on 29.11.2016.
- */
 public class CharsetEncodingFilter implements Filter
 {
     @Override
