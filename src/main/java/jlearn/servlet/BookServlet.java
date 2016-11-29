@@ -65,12 +65,17 @@ public class BookServlet extends AppBaseServlet
 
         BookSearchCriteria criteria = new BookSearchCriteria();
         criteria.setUserId(getUserSession(req).getUser().getId());
+        criteria.setTitle(req.getParameter("title"));
+        criteria.setAuthor(req.getParameter("author"));
+        criteria.setType(valueHelper.tryParseInt(req.getParameter("type"), BookSearchCriteria.TYPE_ALL));
+        criteria.setStatus(valueHelper.tryParseInt(req.getParameter("status"), BookSearchCriteria.TYPE_ALL));
+
         PageRequest pageRequest = new PageRequest(pageNum, 20);
 
-        String adddedMessage = (String)req.getSession().getAttribute(FLASH_SUCCESSFULLY);
-        if (adddedMessage != null) {
+        String addedMessage = (String)req.getSession().getAttribute(FLASH_SUCCESSFULLY);
+        if (addedMessage != null) {
             req.getSession().removeAttribute(FLASH_SUCCESSFULLY);
-            data.put("message", adddedMessage);
+            data.put("message", addedMessage);
         }
 
         try {

@@ -136,7 +136,7 @@ public class UserService
         int state = criteria.getState();
         QueryBuilder queryBuilder = new QueryBuilder().table("\"user\"");
         if (email != null && !email.isEmpty()) {
-            queryBuilder.andWhere("email = ?", email);
+            queryBuilder.andWhere("email LIKE ?", "%" + email);
         }
         if (state == UserSearchCriteria.STATE_ACTIVE) {
             queryBuilder.andWhere("is_active = ?", true);

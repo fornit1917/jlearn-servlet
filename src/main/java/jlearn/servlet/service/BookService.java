@@ -28,6 +28,25 @@ public class BookService
         QueryBuilder queryBuilder = new QueryBuilder();
         queryBuilder.table("book").andWhere("user_id=?", criteria.getUserId());
 
+        if (criteria.getStatus() == BookSearchCriteria.STATUS_READ) {
+            queryBuilder.andWhere("status != ?", BookStatus.UNREAD.getValue());
+        } else if (criteria.getStatus() == BookSearchCriteria.STATUS_UNREAD) {
+            queryBuilder.andWhere("status = ?", BookStatus.UNREAD.getValue());
+        }
+
+        if (criteria.getType() == BookSearchCriteria.TYPE_FICTION) {
+            queryBuilder.andWhere("is_fiction = ?", true);
+        } else if (criteria.getType() == BookSearchCriteria.TYPE_NOT_FICTION) {
+            queryBuilder.andWhere("is_fiction = ?", false);
+        }
+
+        if (!criteria.getTitle().isEmpty()) {
+            queryBuilder.andWhere("LOWER(title) LIKE LOWER(?)", "%" + criteria.getTitle() + "%");
+        }
+        if (!criteria.getAuthor().isEmpty()) {
+            queryBuilder.andWhere("LOWER(author) LIKE LOWER(?)", "%" + criteria.getAuthor() + "%");
+        }
+
         try (Connection conn = ds.getConnection()) {
             //get total count
             PreparedStatement st = queryBuilder.selectCount().createPreparedStatement(conn);

@@ -29,3 +29,14 @@ UserFilterForm.init = function (nodeOrSelector) {
         $form.submit();
     });
 }
+
+
+var BookFilterForm = {};
+
+BookFilterForm.init = function (nodeOrSelector) {
+    var $form = $(nodeOrSelector);
+    var $dropdowns = $form.find("select");
+    $dropdowns.on("change", function () {
+        $form.submit();
+    })
+};

@@ -66,10 +66,9 @@
     display: inline-block;
 }
 
-.action-link {
-
+.add-book-btn-in-head {
+    margin-top: -45px;
 }
-
 
 .book-form {
     max-width: 800px;

@@ -32,7 +32,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="${urlHelper.path("/book/list")}"><span class="glyphicon glyphicon-list"></span> All</a></li>
-                        <li><a href="${urlHelper.path("/book/list/unread")}"><span class="glyphicon glyphicon-tasks"></span> Unread</a></li>
+                        <li><a href="${urlHelper.path("/book/list?status=2")}"><span class="glyphicon glyphicon-tasks"></span> Unread</a></li>
                         <li role="separator" class="divider"></li>
                         <li class="${(menuBookAdd!false)?then("active", "")}"><a href="${urlHelper.path("/book/add")}"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
                     </ul>
