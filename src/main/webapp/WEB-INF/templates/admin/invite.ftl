@@ -7,6 +7,7 @@
 <#macro inner_page_content>
 
     <h1>Create invite</h1>
+    <hr/>
 
     <#if ((addedCode!"") != "") >
         <div class="alert alert-success invite-added-message" role="alert">

@@ -8,7 +8,7 @@
 <#macro inner_page_content>
 
 <h1>User list</h1>
-
+<hr/>
 <form class="form form-inline user-filter-form" id="user-filter-form" method="GET">
     <div class="form-group">
         <input class="form-control user-filter-email" type="text" name="email" value="${criteria.getEmail()}" placeholder="Email"/>
@@ -50,21 +50,23 @@
                     <td>${u.getCreateDate("yyyy-MM-dd")}</td>
                     <td>
                         <#if u.isActive() >
-                            <form method="POST" action="${setActiveUrl}">
-                                <input type="hidden" name="id" value="${u.getId()}">
-                                <input type="hidden" name="active" value="0">
-                                <input type="hidden" name="redirectUrl" value="${requestUrl}">
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    <span class="glyphicon glyphicon-remove"></span> Ban
-                                </button>
-                            </form>
+                            <#if u.getId() != user.getId() >
+                                <form method="POST" action="${setActiveUrl}">
+                                    <input type="hidden" name="id" value="${u.getId()}">
+                                    <input type="hidden" name="active" value="0">
+                                    <input type="hidden" name="redirectUrl" value="${requestUrl}">
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Ban">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </form>
+                            </#if>
                         <#else>
                             <form method="POST" action="${setActiveUrl}">
                                 <input type="hidden" name="id" value="${u.getId()}">
                                 <input type="hidden" name="active" value="1">
                                 <input type="hidden" name="redirectUrl" value="${requestUrl}">
-                                <button type="submit" class="btn btn-sm btn-success">
-                                    <span class="glyphicon glyphicon-ok"></span> Activate
+                                <button type="submit" class="btn btn-sm btn-success" title="Activate">
+                                    <span class="glyphicon glyphicon-ok"></span>
                                 </button>
 
                             </form>
