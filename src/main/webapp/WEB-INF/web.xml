@@ -21,9 +21,19 @@
     </listener>
 
     <filter>
+        <filter-name>charsetEncodingFilter</filter-name>
+        <filter-class>jlearn.servlet.CharsetEncodingFilter</filter-class>
+    </filter>
+
+    <filter>
         <filter-name>authFilter</filter-name>
         <filter-class>jlearn.servlet.AuthFilter</filter-class>
     </filter>
+
+    <filter-mapping>
+        <filter-name>charsetEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
     <filter-mapping>
         <filter-name>authFilter</filter-name>

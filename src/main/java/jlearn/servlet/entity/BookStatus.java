@@ -3,6 +3,11 @@ package jlearn.servlet.entity;
 public enum BookStatus {
     UNREAD, IN_PROGRESS, READED, IN_PROGRESS_REPEAT, UNFINISHED;
 
+    public static BookStatus getByValue(int value)
+    {
+        return values()[value - 1];
+    }
+
     public int getValue()
     {
         return ordinal() + 1;

@@ -1,13 +1,17 @@
 package jlearn.servlet.service;
 
+import jlearn.servlet.dto.BookSearchCriteria;
 import jlearn.servlet.entity.Book;
+import jlearn.servlet.entity.BookStatus;
 import jlearn.servlet.service.utility.CommandResult;
+import jlearn.servlet.service.utility.PageRequest;
+import jlearn.servlet.service.utility.PageResult;
+import jlearn.servlet.service.utility.QueryBuilder;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BookService
 {
@@ -16,6 +20,39 @@ public class BookService
     public BookService(DataSource ds)
     {
         this.ds = ds;
+    }
+
+    public PageResult<Book> getAll(BookSearchCriteria criteria, PageRequest pageRequest) throws SQLException
+    {
+        QueryBuilder queryBuilder = new QueryBuilder();
+        queryBuilder.table("book").andWhere("user_id=?", criteria.getUserId());
+
+        try (Connection conn = ds.getConnection()) {
+            //get total count
+            PreparedStatement st = queryBuilder.selectCount().createPreparedStatement(conn);
+            ResultSet rs = st.executeQuery();
+            rs.next();
+            int totalCount = rs.getInt(1);
+            rs.close();
+
+            st = queryBuilder
+                    .selectColumns("*")
+                    .limit(pageRequest.getPageSize())
+                    .offset(pageRequest.getOffset())
+                    .createPreparedStatement(conn);
+            rs = st.executeQuery();
+            List<Book> books = new ArrayList<>(pageRequest.getPageSize());
+            while (rs.next()) {
+                Book book = new Book();
+                book.setId(rs.getInt("id"));
+                book.setAuthor(rs.getString("author"));
+                book.setTitle(rs.getString("title"));
+                book.setStatus(BookStatus.getByValue(rs.getInt("status")));
+                books.add(book);
+            }
+
+            return new PageResult<>(books, totalCount, pageRequest);
+        }
     }
 
     public CommandResult<Book> addBook(int userId, Book book) throws SQLException
