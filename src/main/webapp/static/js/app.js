@@ -40,3 +40,42 @@ BookFilterForm.init = function (nodeOrSelector) {
         $form.submit();
     })
 };
+
+var ReadingInfoForm = {
+    STATUS_UNREAD: 1,
+    STATUS_IN_PROGRESS: 2,
+    STATUS_FINISHED: 3,
+    STATUS_ABORTED: 4,
+};
+
+ReadingInfoForm.init = function (nodeOrSelector) {
+    var $form = $(nodeOrSelector);
+    var $statusDropdown = $form.find(".book-status");
+    var $historyForm = $form.find(".reading-history-item-form")
+    var $timeStart = $form.find(".time-start");
+    var $timeEnd = $form.find(".time-end");
+
+    function updateControlsVisible() {
+        var status = parseInt($statusDropdown.val());
+        switch (status) {
+            case ReadingInfoForm.STATUS_UNREAD:
+                $historyForm.hide();
+                break;
+            case ReadingInfoForm.STATUS_IN_PROGRESS:
+                $historyForm.show();
+                $timeStart.show();
+                $timeEnd.hide();
+                break;
+            case ReadingInfoForm.STATUS_FINISHED:
+            case ReadingInfoForm.STATUS_ABORTED:
+                $historyForm.show();
+                $timeStart.show();
+                $timeEnd.show();
+                break;
+        }
+    }
+
+    $statusDropdown.on("change", updateControlsVisible);
+
+    updateControlsVisible();
+};
