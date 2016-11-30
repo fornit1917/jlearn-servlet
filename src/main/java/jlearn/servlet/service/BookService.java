@@ -29,9 +29,9 @@ public class BookService
         queryBuilder.table("book").andWhere("user_id=?", criteria.getUserId());
 
         if (criteria.getStatus() == BookSearchCriteria.STATUS_READ) {
-            queryBuilder.andWhere("status != ?", BookStatus.UNREAD.getValue());
+            queryBuilder.andWhere("status NOT IN (?, ?)", BookStatus.UNREAD.getValue(), BookStatus.ABORTED.getValue());
         } else if (criteria.getStatus() == BookSearchCriteria.STATUS_UNREAD) {
-            queryBuilder.andWhere("status = ?", BookStatus.UNREAD.getValue());
+            queryBuilder.andWhere("status = IN (?, ?)", BookStatus.UNREAD.getValue(), BookStatus.ABORTED.getValue());
         }
 
         if (criteria.getType() == BookSearchCriteria.TYPE_FICTION) {

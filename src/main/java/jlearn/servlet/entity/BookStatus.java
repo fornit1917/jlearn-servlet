@@ -1,7 +1,7 @@
 package jlearn.servlet.entity;
 
 public enum BookStatus {
-    UNREAD, IN_PROGRESS, READED, IN_PROGRESS_REPEAT, UNFINISHED;
+    UNREAD, IN_PROGRESS, FINISHED, ABORTED;
 
     public static BookStatus getByValue(int value)
     {
@@ -17,15 +17,13 @@ public enum BookStatus {
     {
         switch (this) {
             case UNREAD:
-                return "New, Unread";
+                return "Unread";
             case IN_PROGRESS:
-                return "I Read It Now";
-            case READED:
-                return "Readed";
-            case IN_PROGRESS_REPEAT:
-                return "I Read It Now Again";
-            case UNFINISHED:
-                return "I Read It but Stopped";
+                return "In progress";
+            case FINISHED:
+                return "Finished";
+            case ABORTED:
+                return "Aborted";
             default:
                 return super.toString();
         }
