@@ -64,7 +64,7 @@
             <th>Author</th>
             <th>Title</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th class="actions-column">Actions</th>
         </tr>
         </thead>
         <#assign deleteAction = urlHelper.path("/book/delete") />
@@ -74,7 +74,7 @@
                 <td>${b.getAuthor()}</td>
                 <td>${b.getTitle()}</td>
                 <td>${b.getStatus().toString()}</td>
-                <td>
+                <td class="actions-column">
                     <a href="${urlHelper.path("/book/update?id=") + b.getId()}" class="btn btn-sm btn-warning" title="Edit">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a>

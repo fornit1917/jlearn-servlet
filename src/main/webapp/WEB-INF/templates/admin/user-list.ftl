@@ -37,7 +37,7 @@
                 <th>Email</th>
                 <th>Admin</th>
                 <th>Date</th>
-                <th>Actions</th>
+                <th class="actions-column">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -48,7 +48,7 @@
                     <td>${u.getEmail()}</td>
                     <td>${u.isAdmin()?then("Yes", "No")}</td>
                     <td>${u.getCreateDate("yyyy-MM-dd")}</td>
-                    <td>
+                    <td class="actions-column">
                         <#if u.isActive() >
                             <#if u.getId() != user.getId() >
                                 <form method="POST" action="${setActiveUrl}">
