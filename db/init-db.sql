@@ -1,3 +1,10 @@
+CREATE TABLE invite
+(
+  id INTEGER PRIMARY KEY NOT NULL,
+  code VARCHAR(64) NOT NULL
+);
+CREATE UNIQUE INDEX invite_code_uindex ON invite (code);
+
 CREATE TABLE "user"
 (
   id INTEGER PRIMARY KEY NOT NULL,
@@ -12,13 +19,6 @@ CREATE TABLE "user"
 );
 CREATE UNIQUE INDEX user_email_uindex ON "user" (email);
 CREATE UNIQUE INDEX user_invite_id_uindex ON "user" (invite_id);
-
-CREATE TABLE invite
-(
-  id INTEGER PRIMARY KEY NOT NULL,
-  code VARCHAR(64) NOT NULL
-);
-CREATE UNIQUE INDEX invite_code_uindex ON invite (code);
 
 CREATE TABLE book
 (
