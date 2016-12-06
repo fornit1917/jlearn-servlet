@@ -90,7 +90,7 @@ public class UserService
             try {
                 st.executeUpdate();
             } catch (SQLException e) {
-                throw new SQLException("Unknown error. Try again later");
+                throw new SQLException("Unknown error. Try again later", e);
             }
 
             ResultSet ids = st.getGeneratedKeys();

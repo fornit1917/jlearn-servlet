@@ -1,13 +1,13 @@
 CREATE TABLE invite
 (
-  id INTEGER PRIMARY KEY NOT NULL,
+  id SERIAL PRIMARY KEY NOT NULL,
   code VARCHAR(64) NOT NULL
 );
 CREATE UNIQUE INDEX invite_code_uindex ON invite (code);
 
 CREATE TABLE "user"
 (
-  id INTEGER PRIMARY KEY NOT NULL,
+  id SERIAL PRIMARY KEY NOT NULL,
   email VARCHAR(128) NOT NULL,
   is_admin BOOLEAN DEFAULT false NOT NULL,
   is_active BOOLEAN DEFAULT false NOT NULL,
@@ -22,7 +22,7 @@ CREATE UNIQUE INDEX user_invite_id_uindex ON "user" (invite_id);
 
 CREATE TABLE book
 (
-  id INTEGER PRIMARY KEY NOT NULL,
+  id SERIAL PRIMARY KEY NOT NULL,
   author VARCHAR(255) NOT NULL,
   title VARCHAR(255) NOT NULL,
   user_id INTEGER NOT NULL,
@@ -34,7 +34,7 @@ CREATE INDEX book_user_id_index ON book (user_id);
 
 CREATE TABLE book_reading
 (
-  id INTEGER PRIMARY KEY NOT NULL,
+  id SERIAL PRIMARY KEY NOT NULL,
   book_id INTEGER NOT NULL,
   status SMALLINT NOT NULL,
   start_month SMALLINT,
