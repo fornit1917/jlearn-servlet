@@ -153,6 +153,37 @@ public class BookService
         }
     }
 
+    public BookStatus[] getAllowedNextStatuses(BookStatus status)
+    {
+        switch (status) {
+            case UNREAD:
+                return BookStatus.values();
+            case IN_PROGRESS:
+                return new BookStatus[]{
+                    BookStatus.IN_PROGRESS,
+                    BookStatus.FINISHED,
+                    BookStatus.ABORTED,
+                };
+            case FINISHED:
+                return new BookStatus[]{
+                    BookStatus.FINISHED,
+                    BookStatus.IN_PROGRESS,
+                };
+            case ABORTED:
+                return new BookStatus[]{
+                    BookStatus.ABORTED,
+                    BookStatus.IN_PROGRESS,
+                };
+            default:
+                return new BookStatus[]{ status };
+        }
+    }
+
+    public BookReading getBookReadingInfo(Book book) throws SQLException
+    {
+        return bookReadingService.getBookReadingInfoForBook(book);
+    }
+
     private ErrorDescriptor validateBook(Book book)
     {
         if (book.getAuthor().isEmpty()) {

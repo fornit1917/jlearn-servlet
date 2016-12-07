@@ -4,6 +4,7 @@ import jlearn.servlet.dto.BookSearchCriteria;
 import jlearn.servlet.entity.Book;
 import jlearn.servlet.entity.BookReading;
 import jlearn.servlet.entity.BookStatus;
+import jlearn.servlet.service.BookService;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
@@ -19,7 +20,6 @@ import java.util.Map;
 public class BookServlet extends AppBaseServlet
 {
     private final static String FLASH_SUCCESSFULLY = "book-successfully";
-    private final static String FLASH_ERROR = "book-error";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -144,14 +144,19 @@ public class BookServlet extends AppBaseServlet
         int userId = getUserSession(req).getUser().getId();
         int bookId = valueHelper.tryParseInt(req.getParameter("id"), 0);
         Map<String, Object> data = new HashMap<>();
-        data.put("statuses", BookStatus.values());
+        BookService bookService = getServiceContainer().getBookService();
         try {
-            Book book = getServiceContainer().getBookService().getBookByIdAndUser(bookId, userId);
+            Book book = bookService.getBookByIdAndUser(bookId, userId);
             if (book == null) {
                 resp.sendError(404);
                 return;
             }
+
+            BookReading bookReading = bookService.getBookReadingInfo(book);
+
             data.put("book", book);
+            data.put("bookReading", bookReading);
+            data.put("statuses", bookService.getAllowedNextStatuses(book.getStatus()));
             render("book/update.ftl", data, req, resp);
         } catch (SQLException e) {
             sendErrorByException(e);

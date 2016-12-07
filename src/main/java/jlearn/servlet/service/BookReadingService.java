@@ -6,12 +6,21 @@ import jlearn.servlet.entity.BookStatus;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.ErrorDescriptor;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class BookReadingService
 {
+    private DataSource ds;
+
+    public BookReadingService(DataSource ds)
+    {
+        this.ds = ds;
+    }
+
     public ErrorDescriptor validateBookReading(BookReading bookReading)
     {
         if (bookReading.getStartYear() < 0 || bookReading.getEndYear() < 0
@@ -56,5 +65,44 @@ public class BookReadingService
         st.setBoolean(7, bookReading.isReread());
 
         st.executeUpdate();
+    }
+
+    public BookReading getBookReadingInfoForBook(Book book) throws SQLException
+    {
+        if (book.getStatus() == BookStatus.UNREAD) {
+            return getDefaultBookReading();
+        }
+
+        try (Connection conn = ds.getConnection()) {
+            String sql = "SELECT * FROM book_reading WHERE book_id=? AND status=?";
+            PreparedStatement st = conn.prepareStatement(sql);
+            st.setInt(1, book.getId());
+            st.setInt(2, book.getStatus().getValue());
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return mapResultSetRowToBookReading(rs);
+            }
+            return getDefaultBookReading();
+        }
+    }
+
+    private BookReading mapResultSetRowToBookReading(ResultSet rs) throws SQLException
+    {
+        BookReading bookReading = new BookReading();
+        bookReading.setId(rs.getInt("id"));
+        bookReading.setStatus(BookStatus.getByValue(rs.getInt("status")));
+        bookReading.setStartYear(rs.getInt("start_year"));
+        bookReading.setStartMonth(rs.getInt("start_month"));
+        bookReading.setEndYear(rs.getInt("end_year"));
+        bookReading.setEndMonth(rs.getInt("end_month"));
+        bookReading.setReread(rs.getBoolean("is_reread"));
+        return bookReading;
+    }
+
+    private BookReading getDefaultBookReading()
+    {
+        BookReading bookReading = new BookReading();
+        bookReading.setStatus(BookStatus.UNREAD);
+        return bookReading;
     }
 }

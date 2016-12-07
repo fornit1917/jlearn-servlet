@@ -57,7 +57,7 @@
                 <div class="col-sm-offset-1 col-sm-10">
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" name="is_reread" id="checkbox-is-reread" name="is_reread" value="1">
+                            <input type="checkbox" ${bookReading.isReread()?then("checked", "")} name="is_reread" id="checkbox-is-reread" name="is_reread" value="1">
                             It's reread
                         </label>
                     </div>
