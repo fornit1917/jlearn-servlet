@@ -2,6 +2,7 @@ package jlearn.servlet.service;
 
 import jlearn.servlet.dto.BookSearchCriteria;
 import jlearn.servlet.entity.Book;
+import jlearn.servlet.entity.BookReading;
 import jlearn.servlet.entity.BookStatus;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
@@ -17,10 +18,16 @@ import java.util.List;
 public class BookService
 {
     private DataSource ds;
+    private BookReadingService bookReadingService;
 
     public BookService(DataSource ds)
     {
         this.ds = ds;
+    }
+
+    public void setBookReadingService(BookReadingService bookReadingService)
+    {
+        this.bookReadingService = bookReadingService;
     }
 
     public PageResult<Book> getAll(BookSearchCriteria criteria, PageRequest pageRequest) throws SQLException
@@ -71,16 +78,37 @@ public class BookService
         }
     }
 
-    public CommandResult<Book> addBook(int userId, Book book) throws SQLException
+    public CommandResult<Book> addBook(int userId, Book book, BookReading bookReading) throws SQLException
     {
         ErrorDescriptor validateError = validateBook(book);
         if (validateError != null) {
             return CommandResult.createErrorResult(validateError);
         }
 
+        if (book.getStatus() != BookStatus.UNREAD) {
+            validateError = bookReadingService.validateBookReading(bookReading);
+            if (validateError != null) {
+                return CommandResult.createErrorResult(validateError);
+            }
+        }
+
         try (Connection conn = ds.getConnection()) {
-            int bookId = insertBook(userId, book, conn);
-            book.setId(bookId);
+            try {
+                conn.setAutoCommit(false);
+                int bookId = insertBook(userId, book, conn);
+                book.setId(bookId);
+                if (book.getStatus() != BookStatus.UNREAD) {
+                    bookReadingService.addBookReadingForBook(book, bookReading, conn);
+                }
+            } catch (SQLException e) {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                book.setId(0);
+                throw e;
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
         }
 
         return CommandResult.createOkResult(book);

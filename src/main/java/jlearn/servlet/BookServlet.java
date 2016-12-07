@@ -2,6 +2,7 @@ package jlearn.servlet;
 
 import jlearn.servlet.dto.BookSearchCriteria;
 import jlearn.servlet.entity.Book;
+import jlearn.servlet.entity.BookReading;
 import jlearn.servlet.entity.BookStatus;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
@@ -90,25 +91,25 @@ public class BookServlet extends AppBaseServlet
 
     private void doGetBookAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        Map<String, Object> data = new HashMap<>();
         Book book = new Book();
-        data.put("book", book);
-        data.put("statuses", BookStatus.values());
+        BookReading bookReading = new BookReading();
+        Map<String, Object> data = getDataForBookFormPage(book, bookReading);
         render("book/add.ftl", data, req, resp);
     }
 
     private void doPostBookAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
         Book book = new Book();
-        popupateBookByRequest(req, book);
+        BookReading bookReading = new BookReading();
+        populateBookByRequest(req, book);
+        populateBookReadingByRequest(req, bookReading);
 
         int userId = getUserSession(req).getUser().getId();
 
         try {
-            CommandResult<Book> result = getServiceContainer().getBookService().addBook(userId, book);
+            CommandResult<Book> result = getServiceContainer().getBookService().addBook(userId, book, bookReading);
             if (result.isError()) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("book", book);
+                Map<String, Object> data = getDataForBookFormPage(book, bookReading);
                 data.put("error", result.getError().getMessage());
                 render("book/add.ftl", data, req, resp);
             } else {
@@ -171,7 +172,7 @@ public class BookServlet extends AppBaseServlet
                 return;
             }
             data.put("book", book);
-            popupateBookByRequest(req, book);
+            populateBookByRequest(req, book);
             CommandResult<Book> result = getServiceContainer().getBookService().editBook(book);
             if (result.isError()) {
                 data.put("error", result.getError().getMessage());
@@ -185,7 +186,7 @@ public class BookServlet extends AppBaseServlet
         }
     }
 
-    private void popupateBookByRequest(HttpServletRequest req, Book book)
+    private void populateBookByRequest(HttpServletRequest req, Book book)
     {
         book.setTitle(req.getParameter("title"));
         book.setAuthor(req.getParameter("author"));
@@ -193,4 +194,22 @@ public class BookServlet extends AppBaseServlet
         book.setFiction(req.getParameter("is_fiction") != null);
     }
 
+    private void populateBookReadingByRequest(HttpServletRequest req, BookReading bookReading)
+    {
+        bookReading.setStartYear(valueHelper.tryParseInt(req.getParameter("start_year"), 0));
+        bookReading.setStartMonth(valueHelper.tryParseInt(req.getParameter("start_month"), 0));
+        bookReading.setEndYear(valueHelper.tryParseInt(req.getParameter("end_year"), 0));
+        bookReading.setEndMonth(valueHelper.tryParseInt(req.getParameter("end_month"), 0));
+        bookReading.setStatus(BookStatus.getByValue(valueHelper.tryParseInt(req.getParameter("status"), 0)));
+        bookReading.setReread(req.getParameter("is_reread") != null);
+    }
+
+    private Map<String, Object> getDataForBookFormPage(Book book, BookReading bookReading)
+    {
+        Map<String, Object> data = new HashMap<>();
+        data.put("book", book);
+        data.put("bookReading", bookReading);
+        data.put("statuses", BookStatus.values());
+        return data;
+    }
 }

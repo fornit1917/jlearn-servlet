@@ -1,5 +1,6 @@
 <#-- @ftlvariable name="statuses" type="jlearn.servlet.entity.BookStatus[]" -->
 <#-- @ftlvariable name="book" type="jlearn.servlet.entity.Book" -->
+<#-- @ftlvariable name="bookReading" type="jlearn.servlet.entity.BookReading" -->
 
 <#if ((error!"") != "") >
     <div class="alert alert-danger" role="alert">
@@ -63,34 +64,29 @@
                 </div>
             </div>
 
+            <#assign years  = valueHelper.getYearsRange() />
+            <#assign months = valueHelper.getMonthsNames() />
+
             <div class="form-group time-start">
                 <label class="col-sm-1">Start</label>
                 <div class="col-sm-2">
                     <div class="help">Year</div>
                     <select name="start_year" class="form-control">
-                        <option>2016</option>
-                        <option>2015</option>
-                        <option>2014</option>
-                        <option>2013</option>
-                        <option>2012</option>
-                        <option>2011</option>
+                        <option value="0">Unknown</option>
+                        <option disabled>--------------------</option>
+                        <#list years as year >
+                            <option ${(bookReading.getStartYear() == year)?then("selected", "")} value="${year?c}">${year?c}</option>
+                        </#list>
                     </select>
                 </div>
                 <div class="col-sm-4">
                     <div class="help">Month</div>
                     <select name="start_month" class="form-control">
-                        <option>January</option>
-                        <option>February</option>
-                        <option>March</option>
-                        <option>April</option>
-                        <option>May</option>
-                        <option>June</option>
-                        <option>July</option>
-                        <option>August</option>
-                        <option>September</option>
-                        <option>October</option>
-                        <option>November</option>
-                        <option>December</option>
+                        <option value="0">Unknown</option>
+                        <option disabled>--------------------</option>
+                        <#list 1..12 as monthNum >
+                            <option ${(bookReading.getStartMonth() == monthNum)?then("selected", "")} value="${monthNum?c}">${months[monthNum - 1]}</option>
+                        </#list>
                     </select>
                 </div>
             </div>
@@ -100,29 +96,21 @@
                 <div class="col-sm-2">
                     <div class="help">Year</div>
                     <select name="end_year" class="form-control">
-                        <option>2016</option>
-                        <option>2015</option>
-                        <option>2014</option>
-                        <option>2013</option>
-                        <option>2012</option>
-                        <option>2011</option>
+                        <option value="0">Unknown</option>
+                        <option disabled>--------------------</option>
+                        <#list years as year >
+                            <option ${(bookReading.getEndYear() == year)?then("selected", "")} value="${year?c}">${year?c}</option>
+                        </#list>
                     </select>
                 </div>
                 <div class="col-sm-4">
                     <div class="help">Month</div>
                     <select name="end_month" class="form-control">
-                        <option>January</option>
-                        <option>February</option>
-                        <option>March</option>
-                        <option>April</option>
-                        <option>May</option>
-                        <option>June</option>
-                        <option>July</option>
-                        <option>August</option>
-                        <option>September</option>
-                        <option>October</option>
-                        <option>November</option>
-                        <option>December</option>
+                        <option value="0">Unknown</option>
+                        <option disabled>--------------------</option>
+                        <#list 1..12 as monthNum >
+                            <option ${(bookReading.getEndMonth() == monthNum)?then("selected", "")} value="${monthNum?c}">${months[monthNum - 1]}</option>
+                        </#list>
                     </select>
                 </div>
             </div>
