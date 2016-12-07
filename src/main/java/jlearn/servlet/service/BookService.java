@@ -38,7 +38,7 @@ public class BookService
         if (criteria.getStatus() == BookSearchCriteria.STATUS_READ) {
             queryBuilder.andWhere("status NOT IN (?, ?)", BookStatus.UNREAD.getValue(), BookStatus.ABORTED.getValue());
         } else if (criteria.getStatus() == BookSearchCriteria.STATUS_UNREAD) {
-            queryBuilder.andWhere("status = IN (?, ?)", BookStatus.UNREAD.getValue(), BookStatus.ABORTED.getValue());
+            queryBuilder.andWhere("status IN (?, ?)", BookStatus.UNREAD.getValue(), BookStatus.ABORTED.getValue());
         }
 
         if (criteria.getType() == BookSearchCriteria.TYPE_FICTION) {
