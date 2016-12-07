@@ -37,10 +37,11 @@ CREATE TABLE book_reading
   id SERIAL PRIMARY KEY NOT NULL,
   book_id INTEGER NOT NULL,
   status SMALLINT NOT NULL,
-  start_month SMALLINT,
-  start_year INTEGER,
-  end_month SMALLINT,
-  end_year INTEGER,
+  start_month SMALLINT NOT NULL,
+  start_year INTEGER NOT NULL,
+  end_month SMALLINT NOT NULL,
+  end_year INTEGER NOT NULL,
+  is_reread BOOLEAN NOT NULL,
   CONSTRAINT book_reading_book_fk FOREIGN KEY (book_id) REFERENCES book (id)
 );
 CREATE INDEX book_reading_end_year_index ON book_reading (end_year);
