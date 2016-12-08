@@ -10,7 +10,7 @@
         Book has been updated successfully. <a href="${urlHelper.path("/book/list")}">Show list</a>
     </div>
     </#if>
-    <#include "_form.ftl">
+    <#include "_book_form.ftl">
 </#macro>
 
 <@all_page_content></@all_page_content>

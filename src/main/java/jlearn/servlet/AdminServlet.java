@@ -103,7 +103,7 @@ public class AdminServlet extends AppBaseServlet
             PageResult<User> users = getServiceContainer().getUserService().getAll(criteria, pageRequest);
             data.put("users", users);
             data.put("criteria", criteria);
-            render("admin/user-list.ftl", data, req, resp);
+            render("admin/user_list.ftl", data, req, resp);
         } catch(SQLException e) {
             sendErrorByException(e);
         }
