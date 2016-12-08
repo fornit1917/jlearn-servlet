@@ -65,6 +65,45 @@ public class BookReadingService
         st.setBoolean(7, bookReading.isReread());
 
         st.executeUpdate();
+        st.close();
+    }
+
+    public void updateLastBookReadingForBook(Book book, BookReading newBookReadingData, Connection conn) throws SQLException
+    {
+        BookReading lastBookReading = getBookReadingInfoForBook(book, conn);
+        if (lastBookReading.getId() == 0) {
+            addBookReadingForBook(book, newBookReadingData, conn);
+        } else {
+            String sql = "UPDATE book_reading SET status=?, start_year=?, start_month=?, end_year=?, end_month=?, is_reread=? WHERE id=?";
+            PreparedStatement st = conn.prepareStatement(sql);
+            st.setInt(1, newBookReadingData.getStatus().getValue());
+            st.setInt(2, newBookReadingData.getStartYear());
+            st.setInt(3, newBookReadingData.getStartMonth());
+            st.setInt(4, newBookReadingData.getEndYear());
+            st.setInt(5, newBookReadingData.getEndMonth());
+            st.setBoolean(6, newBookReadingData.isReread());
+            st.setInt(7, lastBookReading.getId());
+            st.executeUpdate();
+            st.close();
+        }
+    }
+
+    public BookReading getBookReadingInfoForBook(Book book, Connection conn) throws SQLException
+    {
+        if (book.getStatus() == BookStatus.UNREAD) {
+            return getDefaultBookReading();
+        }
+
+        String sql = "SELECT * FROM book_reading WHERE book_id=? AND status=? ORDER BY id DESC";
+        PreparedStatement st = conn.prepareStatement(sql);
+        st.setInt(1, book.getId());
+        st.setInt(2, book.getStatus().getValue());
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            return mapResultSetRowToBookReading(rs);
+        }
+
+        return getDefaultBookReading();
     }
 
     public BookReading getBookReadingInfoForBook(Book book) throws SQLException
@@ -72,17 +111,8 @@ public class BookReadingService
         if (book.getStatus() == BookStatus.UNREAD) {
             return getDefaultBookReading();
         }
-
         try (Connection conn = ds.getConnection()) {
-            String sql = "SELECT * FROM book_reading WHERE book_id=? AND status=?";
-            PreparedStatement st = conn.prepareStatement(sql);
-            st.setInt(1, book.getId());
-            st.setInt(2, book.getStatus().getValue());
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                return mapResultSetRowToBookReading(rs);
-            }
-            return getDefaultBookReading();
+            return getBookReadingInfoForBook(book, conn);
         }
     }
 

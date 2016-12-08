@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class BookServlet extends AppBaseServlet
 {
@@ -167,18 +168,24 @@ public class BookServlet extends AppBaseServlet
     {
         int userId = getUserSession(req).getUser().getId();
         int bookId = valueHelper.tryParseInt(req.getParameter("id"), 0);
-        Map<String, Object> data = new HashMap<>();
-        data.put("statuses", BookStatus.values());
+        BookService bookService = getServiceContainer().getBookService();
 
         try {
-            Book book = getServiceContainer().getBookService().getBookByIdAndUser(bookId, userId);
+            Book book = bookService.getBookByIdAndUser(bookId, userId);
             if (book == null) {
                 resp.sendError(404);
                 return;
             }
-            data.put("book", book);
-            populateBookByRequest(req, book);
-            CommandResult<Book> result = getServiceContainer().getBookService().editBook(book);
+            Book newBookData = new Book(book);
+            populateBookByRequest(req, newBookData);
+
+            BookReading newBookReadingData = new BookReading();
+            populateBookReadingByRequest(req, newBookReadingData);
+
+            CommandResult<Book> result = bookService.editBook(book, newBookData, newBookReadingData);
+            book = result.getResult();
+            Map<String, Object> data = getDataForBookFormPage(book, newBookReadingData);
+
             if (result.isError()) {
                 data.put("error", result.getError().getMessage());
             } else {
@@ -209,12 +216,17 @@ public class BookServlet extends AppBaseServlet
         bookReading.setReread(req.getParameter("is_reread") != null);
     }
 
-    private Map<String, Object> getDataForBookFormPage(Book book, BookReading bookReading)
+    private Map<String, Object> getDataForBookFormPage(Book book, BookReading bookReading) throws ServletException
     {
         Map<String, Object> data = new HashMap<>();
         data.put("book", book);
         data.put("bookReading", bookReading);
-        data.put("statuses", BookStatus.values());
+        if (book.getId() == 0) {
+            data.put("statuses", BookStatus.values());
+        } else {
+            data.put("statuses", getServiceContainer().getBookService().getAllowedNextStatuses(book.getStatus()));
+        }
+
         return data;
     }
 }

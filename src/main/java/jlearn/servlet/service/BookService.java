@@ -13,6 +13,7 @@ import jlearn.servlet.service.utility.ErrorDescriptor;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BookService
@@ -114,17 +115,36 @@ public class BookService
         return CommandResult.createOkResult(book);
     }
 
-    public CommandResult<Book> editBook(Book book) throws SQLException
+    public CommandResult<Book> editBook(Book book, Book newBookData, BookReading newBookReadingData) throws SQLException
     {
-        ErrorDescriptor validateError = validateBook(book);
+        ErrorDescriptor validateError = validateBook(newBookData);
         if (validateError != null) {
             return CommandResult.createErrorResult(validateError);
         }
+        if (!Arrays.asList(getAllowedNextStatuses(book.getStatus())).contains(newBookData.getStatus())) {
+            return CommandResult.createErrorResult("Incorrect status");
+        }
 
         try (Connection conn = ds.getConnection()) {
-            updateBook(book, conn);
-            return CommandResult.createOkResult(book);
+            conn.setAutoCommit(false);
+            try {
+                updateBook(book, newBookData, conn);
+                if (newBookData.getStatus() != BookStatus.UNREAD) {
+                    if (book.getStatus() == BookStatus.IN_PROGRESS || book.getStatus() == newBookData.getStatus()) {
+                        bookReadingService.updateLastBookReadingForBook(book, newBookReadingData, conn);
+                    } else {
+                        bookReadingService.addBookReadingForBook(newBookData, newBookReadingData, conn);
+                    }
+                }
+                conn.commit();
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                throw e;
+            }
         }
+        return CommandResult.createOkResult(newBookData);
     }
 
     public Book getBookByIdAndUser(int bookId, int userId) throws SQLException
@@ -212,14 +232,14 @@ public class BookService
         }
     }
 
-    private void updateBook(Book book, Connection conn) throws SQLException
+    private void updateBook(Book book, Book newBookData, Connection conn) throws SQLException
     {
         String sql = "UPDATE book SET author=?, title=?, is_fiction=?, status=? WHERE id=?";
         try (PreparedStatement st = conn.prepareStatement(sql)) {
-            st.setString(1, book.getAuthor());
-            st.setString(2, book.getTitle());
-            st.setBoolean(3, book.isFiction());
-            st.setInt(4, book.getStatus().getValue());
+            st.setString(1, newBookData.getAuthor());
+            st.setString(2, newBookData.getTitle());
+            st.setBoolean(3, newBookData.isFiction());
+            st.setInt(4, newBookData.getStatus().getValue());
             st.setInt(5, book.getId());
             st.executeUpdate();
         }
