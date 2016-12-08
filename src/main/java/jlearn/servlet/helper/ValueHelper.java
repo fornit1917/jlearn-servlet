@@ -1,9 +1,6 @@
 package jlearn.servlet.helper;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.time.Year;
-import java.util.Date;
 
 public class ValueHelper
 {
@@ -18,17 +15,6 @@ public class ValueHelper
             return defaultValue;
         }
     }
-
-    public Integer tryParseIfNotZero(String s)
-    {
-        int value = tryParseInt(s, 0);
-        if (value == 0) {
-            return null;
-        } else {
-            return new Integer(value);
-        }
-    }
-
 
     public int tryParseInt(String s)
     {
@@ -61,15 +47,5 @@ public class ValueHelper
             "November",
             "December",
         };
-    }
-
-    public int getCurrentYear()
-    {
-        return Year.now().getValue();
-    }
-
-    public int getCurrentMonthNum()
-    {
-        return LocalDate.now().getMonth().getValue();
     }
 }
