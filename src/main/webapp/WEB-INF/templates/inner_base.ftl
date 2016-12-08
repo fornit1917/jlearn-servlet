@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="menuAdmin" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="menuAdminUser" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="menuAdminInvite" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="user" type="jlearn.servlet.entity.User" -->
+<#-- @ftlvariable name="user" type="jlearn.servlet.dto.User" -->
 
 <#include "base.ftl">
 

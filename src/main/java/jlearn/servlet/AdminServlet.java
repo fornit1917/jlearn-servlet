@@ -2,7 +2,7 @@ package jlearn.servlet;
 
 
 import jlearn.servlet.dto.UserSearchCriteria;
-import jlearn.servlet.entity.User;
+import jlearn.servlet.dto.User;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;

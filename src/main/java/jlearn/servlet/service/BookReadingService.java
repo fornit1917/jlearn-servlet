@@ -1,9 +1,8 @@
 package jlearn.servlet.service;
 
-import jlearn.servlet.entity.Book;
-import jlearn.servlet.entity.BookReading;
-import jlearn.servlet.entity.BookStatus;
-import jlearn.servlet.service.utility.CommandResult;
+import jlearn.servlet.dto.Book;
+import jlearn.servlet.dto.BookReading;
+import jlearn.servlet.dto.BookStatus;
 import jlearn.servlet.service.utility.ErrorDescriptor;
 
 import javax.sql.DataSource;

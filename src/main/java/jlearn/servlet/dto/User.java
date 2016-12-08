@@ -1,4 +1,4 @@
-package jlearn.servlet.entity;
+package jlearn.servlet.dto;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;

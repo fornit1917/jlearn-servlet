@@ -1,9 +1,9 @@
 package jlearn.servlet.service;
 
 import jlearn.servlet.dto.BookSearchCriteria;
-import jlearn.servlet.entity.Book;
-import jlearn.servlet.entity.BookReading;
-import jlearn.servlet.entity.BookStatus;
+import jlearn.servlet.dto.Book;
+import jlearn.servlet.dto.BookReading;
+import jlearn.servlet.dto.BookStatus;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;

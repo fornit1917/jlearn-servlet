@@ -1,7 +1,7 @@
 <#ftl output_format="HTML">
 <#-- @ftlvariable name="message" type="java.lang.String" -->
 <#-- @ftlvariable name="criteria" type="jlearn.servlet.dto.BookSearchCriteria" -->
-<#-- @ftlvariable name="books" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.entity.Book>" -->
+<#-- @ftlvariable name="books" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.dto.Book>" -->
 
 <#include "../inner_base.ftl">
 <#include "../_pager.ftl">

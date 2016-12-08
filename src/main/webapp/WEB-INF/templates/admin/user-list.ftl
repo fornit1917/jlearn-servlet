@@ -1,6 +1,6 @@
 <#ftl output_format="HTML">
 <#-- @ftlvariable name="criteria" type="jlearn.servlet.dto.UserSearchCriteria" -->
-<#-- @ftlvariable name="users" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.entity.User>" -->
+<#-- @ftlvariable name="users" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.dto.User>" -->
 
 <#include "../inner_base.ftl">
 <#include "../_pager.ftl">

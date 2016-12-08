@@ -1,6 +1,6 @@
-<#-- @ftlvariable name="statuses" type="jlearn.servlet.entity.BookStatus[]" -->
-<#-- @ftlvariable name="book" type="jlearn.servlet.entity.Book" -->
-<#-- @ftlvariable name="bookReading" type="jlearn.servlet.entity.BookReading" -->
+<#-- @ftlvariable name="statuses" type="jlearn.servlet.dto.BookStatus[]" -->
+<#-- @ftlvariable name="book" type="jlearn.servlet.dto.Book" -->
+<#-- @ftlvariable name="bookReading" type="jlearn.servlet.dto.BookReading" -->
 
 <#if ((error!"") != "") >
     <div class="alert alert-danger" role="alert">

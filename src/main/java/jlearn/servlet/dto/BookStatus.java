@@ -1,4 +1,4 @@
-package jlearn.servlet.entity;
+package jlearn.servlet.dto;
 
 public enum BookStatus {
     UNREAD, IN_PROGRESS, FINISHED, ABORTED;
