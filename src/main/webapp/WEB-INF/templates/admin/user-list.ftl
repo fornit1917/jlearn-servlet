@@ -51,7 +51,7 @@
                     <td class="actions-column">
                         <#if u.isActive() >
                             <#if u.getId() != user.getId() >
-                                <form method="POST" action="${setActiveUrl}">
+                                <form method="POST" action="${setActiveUrl}" class="user-delete-form">
                                     <input type="hidden" name="id" value="${u.getId()}">
                                     <input type="hidden" name="active" value="0">
                                     <input type="hidden" name="redirectUrl" value="${requestUrl}">
@@ -77,6 +77,11 @@
         </tbody>
     </table>
     <@pager pageResult=users/>
+    <script>
+        $(function () {
+            DeleteButtons.init(".user-delete-form")
+        });
+    </script>
 <#else>
     <p>Your request does not have any result</p>
 </#if>

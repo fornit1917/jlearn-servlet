@@ -79,3 +79,23 @@ ReadingInfoForm.init = function (nodeOrSelector) {
 
     updateControlsVisible();
 };
+
+
+var DeleteButtons = {
+
+};
+
+DeleteButtons.init = function (nodeOrSelectorForm) {
+    var $forms = $(nodeOrSelectorForm);
+    $forms.submit(function (e) {
+        var message = $(this).attr("data-message");
+        if (typeof message === "undefined") {
+            message = "Are you sure you want to delete?";
+        }
+        if (!confirm(message + "")) {
+            e.preventDefault();
+            return false;
+        }
+        return true;
+    });
+};

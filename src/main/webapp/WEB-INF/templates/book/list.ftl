@@ -78,7 +78,7 @@
                     <a href="${urlHelper.path("/book/update?id=") + b.getId()}" class="btn btn-sm btn-warning" title="Edit">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a>
-                    <form method="post" action="${deleteAction}" class="action-form">
+                    <form method="post" action="${deleteAction}" class="action-form book-delete-form">
                         <input type="hidden" name="id" value="${b.getId()}">
                         <input type="hidden" name="redirectUrl" value="${requestUrl}">
                         <button type="submit" class="btn btn-sm btn-danger" title="Delete">
@@ -100,6 +100,7 @@
     <script>
         $(function () {
             BookFilterForm.init("#book-filter-form");
+            DeleteButtons.init(".book-delete-form")
         });
     </script>
 </#macro>
