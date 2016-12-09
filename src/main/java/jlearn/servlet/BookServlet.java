@@ -4,6 +4,7 @@ import jlearn.servlet.dto.BookSearchCriteria;
 import jlearn.servlet.dto.Book;
 import jlearn.servlet.dto.BookReading;
 import jlearn.servlet.dto.BookStatus;
+import jlearn.servlet.exception.NotFoundException;
 import jlearn.servlet.service.BookService;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
@@ -170,19 +171,14 @@ public class BookServlet extends AppBaseServlet
         BookService bookService = getServiceContainer().getBookService();
 
         try {
-            Book book = bookService.getBookByIdAndUser(bookId, userId);
-            if (book == null) {
-                resp.sendError(404);
-                return;
-            }
-            Book newBookData = new Book(book);
+            Book newBookData = new Book();
             populateBookByRequest(req, newBookData);
 
             BookReading newBookReadingData = new BookReading();
             populateBookReadingByRequest(req, newBookReadingData);
 
-            CommandResult<Book> result = bookService.editBook(book, newBookData, newBookReadingData);
-            book = result.getResult();
+            CommandResult<Book> result = bookService.editBook(bookId, userId, newBookData, newBookReadingData);
+            Book book = result.getResult();
             Map<String, Object> data = getDataForBookFormPage(book, newBookReadingData);
 
             if (result.isError()) {
@@ -191,9 +187,10 @@ public class BookServlet extends AppBaseServlet
                 data.put("success", true);
             }
             render("book/update.ftl", data, req, resp);
-
         } catch (SQLException e) {
             sendErrorByException(e);
+        } catch (NotFoundException e) {
+            resp.sendError(404);
         }
     }
 

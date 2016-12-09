@@ -4,6 +4,7 @@ import jlearn.servlet.dto.BookSearchCriteria;
 import jlearn.servlet.dto.Book;
 import jlearn.servlet.dto.BookReading;
 import jlearn.servlet.dto.BookStatus;
+import jlearn.servlet.exception.NotFoundException;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
@@ -115,19 +116,28 @@ public class BookService
         return CommandResult.createOkResult(book);
     }
 
-    public CommandResult<Book> editBook(Book book, Book newBookData, BookReading newBookReadingData) throws SQLException
+    public CommandResult<Book> editBook(int bookId, int userId, Book newBookData, BookReading newBookReadingData) throws SQLException, NotFoundException
     {
         ErrorDescriptor validateError = validateBook(newBookData);
         if (validateError != null) {
             return CommandResult.createErrorResult(validateError);
         }
-        if (!Arrays.asList(getAllowedNextStatuses(book.getStatus())).contains(newBookData.getStatus())) {
-            return CommandResult.createErrorResult("Incorrect status");
-        }
 
         try (Connection conn = ds.getConnection()) {
             conn.setAutoCommit(false);
             try {
+                Book book = getBookByIdAndUser(bookId, userId);
+                if (book == null) {
+                    conn.rollback();
+                    conn.setAutoCommit(true);
+                    throw new NotFoundException();
+                }
+
+                if (!Arrays.asList(getAllowedNextStatuses(book.getStatus())).contains(newBookData.getStatus())) {
+                    return CommandResult.createErrorResult("Incorrect status");
+                }
+
+                newBookData.setId(bookId);
                 updateBook(book, newBookData, conn);
                 if (newBookData.getStatus() != BookStatus.UNREAD) {
                     if (book.getStatus() == BookStatus.IN_PROGRESS || book.getStatus() == newBookData.getStatus()) {
