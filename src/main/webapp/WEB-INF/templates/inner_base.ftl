@@ -27,7 +27,7 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li class="dropdown ${(menuBook!false)?then("active", "")}">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <a href="${urlHelper.path("/book/list")}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         Books <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
@@ -38,7 +38,7 @@
                     </ul>
                 </li>
                 <li class="${(menuHistory!false)?then("active", "")}">
-                    <a href="${urlHelper.path("book-history")}">History of Read</a>
+                    <a href="${urlHelper.path("/book-reading/history")}">History of Read</a>
                 </li>
                 <#if (user.isAdmin()) >
                     <li class="dropdown ${(menuAdmin!false)?then("active", "")}">

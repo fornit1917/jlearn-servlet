@@ -1,3 +1,4 @@
+<#ftl output_format="HTML">
 <#-- @ftlvariable name="statuses" type="jlearn.servlet.dto.BookStatus[]" -->
 <#-- @ftlvariable name="book" type="jlearn.servlet.dto.Book" -->
 <#-- @ftlvariable name="bookReading" type="jlearn.servlet.dto.BookReading" -->

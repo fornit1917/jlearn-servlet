@@ -4,6 +4,21 @@ import java.time.Year;
 
 public class ValueHelper
 {
+    private static final String[] monthsNames = new String[]{
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    };
+
     public int tryParseInt(String s, int defaultValue)
     {
         if (s == null) {
@@ -33,19 +48,21 @@ public class ValueHelper
 
     public String[] getMonthsNames()
     {
-        return new String[]{
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        };
+        return ValueHelper.monthsNames;
+    }
+
+    public String getStringFromYearAndMonth(int year, int monthNum)
+    {
+        StringBuilder sb = new StringBuilder();
+        if (year > 0) {
+            sb.append(year);
+            if (monthNum > 0 && monthNum < 13) {
+                sb.append(", ");
+            }
+        }
+        if (monthNum > 0 && monthNum < 13) {
+            sb.append(ValueHelper.monthsNames[monthNum - 1]);
+        }
+        return sb.toString();
     }
 }

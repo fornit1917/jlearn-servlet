@@ -2,22 +2,32 @@ package jlearn.servlet.service;
 
 import jlearn.servlet.dto.Book;
 import jlearn.servlet.dto.BookReading;
+import jlearn.servlet.dto.BookReadingHistoryItem;
 import jlearn.servlet.dto.BookStatus;
+import jlearn.servlet.helper.ValueHelper;
 import jlearn.servlet.service.utility.ErrorDescriptor;
+import jlearn.servlet.service.utility.PageRequest;
+import jlearn.servlet.service.utility.PageResult;
+import jlearn.servlet.service.utility.QueryBuilder;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class BookReadingService
 {
     private DataSource ds;
+    private ValueHelper valueHelper;
 
     public BookReadingService(DataSource ds)
     {
         this.ds = ds;
+        this.valueHelper = new ValueHelper();
     }
 
     public ErrorDescriptor validateBookReading(BookReading bookReading)
@@ -112,6 +122,60 @@ public class BookReadingService
         }
         try (Connection conn = ds.getConnection()) {
             return getBookReadingInfoForBook(book, conn);
+        }
+    }
+
+    public PageResult<BookReadingHistoryItem> getListForHistory(int userId, PageRequest pageRequest) throws SQLException
+    {
+        try (Connection conn = ds.getConnection()) {
+            QueryBuilder queryBuilder = new QueryBuilder();
+            queryBuilder
+                .table("book as b INNER JOIN book_reading as br ON (br.book_id=b.id)")
+                .andWhere("b.user_id=?", userId);
+
+            //get total count
+            PreparedStatement st = queryBuilder.selectCount().createPreparedStatement(conn);
+            ResultSet rs = st.executeQuery();
+            int totalCount;
+            if (rs.next()) {
+                totalCount = rs.getInt(1);
+            } else {
+                throw new SQLException("Cannot get total count");
+            }
+            st.close();
+            rs.close();
+
+            //get records
+            st = queryBuilder
+                .selectColumns("b.author, b.title, br.status, br.start_year, br.start_month, br.end_year, br.end_month")
+                .orderBy("GREATEST(br.start_year, br.end_year) DESC")
+                .limit(pageRequest.getPageSize())
+                .offset(pageRequest.getOffset())
+                .createPreparedStatement(conn);
+            rs = st.executeQuery();
+            List<BookReadingHistoryItem> result = new ArrayList<>();
+            while (rs.next()) {
+                BookReadingHistoryItem item = new BookReadingHistoryItem();
+                item.setAuthor(rs.getString("author"));
+                item.setTitle(rs.getString("title"));
+                item.setStatus(BookStatus.getByValue(rs.getInt("status")));
+
+                int startYear = rs.getInt("start_year");
+                item.setStart(valueHelper.getStringFromYearAndMonth(
+                        startYear, rs.getInt("start_month")
+                ));
+
+                int endYear = rs.getInt("end_year");
+                item.setEnd(valueHelper.getStringFromYearAndMonth(
+                        endYear, rs.getInt("end_month")
+                ));
+
+                item.setYear(endYear > startYear ? endYear : startYear);
+
+                result.add(item);
+            }
+
+            return new PageResult<>(result, totalCount, pageRequest);
         }
     }
 

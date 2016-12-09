@@ -99,3 +99,10 @@ DeleteButtons.init = function (nodeOrSelectorForm) {
         return true;
     });
 };
+
+
+var ReadingHistory = {};
+
+ReadingHistory.init = function (nodeOrSelector, requestUrl, data) {
+    console.log(data);
+};

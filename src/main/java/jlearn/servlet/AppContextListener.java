@@ -29,6 +29,7 @@ public class AppContextListener implements ServletContextListener {
             sc.setUserService(userService);
 
             BookReadingService bookReadingService = new BookReadingService(ds);
+            sc.setBookReadingService(bookReadingService);
 
             BookService bookService = new BookService(ds);
             bookService.setBookReadingService(bookReadingService);
