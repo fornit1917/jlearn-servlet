@@ -32,6 +32,7 @@ public class BookReadingServlet extends AppBaseServlet
     {
         int pageNum = valueHelper.tryParseInt(req.getParameter("page"), 0);
         int userId = getUserSession(req).getUser().getId();
+        boolean ajax = req.getParameter("ajax") != null;
         PageRequest pageRequest = new PageRequest(pageNum, 20);
         BookReadingService bookReadingService = getServiceContainer().getBookReadingService();
         try {
@@ -39,7 +40,11 @@ public class BookReadingServlet extends AppBaseServlet
             JSONObject result = getHistoryAsJson(history);
             Map<String, Object> data = new HashMap<>();
             data.put("json", result.toJSONString());
-            render("book-reading/history.ftl", data, req, resp);
+            if (ajax) {
+                result.writeJSONString(resp.getWriter());
+            } else {
+                render("book-reading/history.ftl", data, req, resp);
+            }
         } catch (SQLException e) {
             sendErrorByException(e);
         }
@@ -49,8 +54,8 @@ public class BookReadingServlet extends AppBaseServlet
     private JSONObject getHistoryAsJson(PageResult<BookReadingHistoryItem> history)
     {
         JSONObject json = new JSONObject();
-        json.put("page_num", history.getPageNum());
-        json.put("has_next_page", history.hasNext());
+        json.put("pageNum", history.getPageNum());
+        json.put("hasNextPage", history.hasNext());
 
         List<Map<String, Object>> data = new ArrayList<>(history.getSlice().size());
         for (BookReadingHistoryItem item : history.getSlice()) {

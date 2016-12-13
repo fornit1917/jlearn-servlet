@@ -108,7 +108,7 @@ var ReadingHistory = {};
 
 ReadingHistory.YearViewModel = function (year, items) {
     this.year = year;
-    this.items = ko.observableArray(items);
+    this.items = ko.observableArray(items).extend({ rateLimit: 50 });
 };
 
 ReadingHistory.ItemViewModel = function (item) {
@@ -143,22 +143,67 @@ ReadingHistory.ItemViewModel.prototype.showDate = function (dateType) {
 ReadingHistory.init = function (nodeOrSelector, requestUrl, data) {
     var viewModelData = this._prepareViewModelData(data);
     var viewModel = {
-        years: Object.keys(viewModelData).sort().reverse().map(function (year) {
-            return viewModelData[year]
-        }),
-    }
+        years: ko.observableArray(
+            Object.keys(viewModelData).sort().reverse().map(function (year) {
+                return viewModelData[year]
+            })
+        ).extend({ rateLimit: 50 }),
+        pageNum: data.pageNum,
+        hasNextPage: ko.observable(data.hasNextPage),
+        onLoadClick: function () {
+            this.isLoading(true);
+            $.ajax(requestUrl, {
+                type: "GET",
+                data: {
+                    page: this.pageNum + 1,
+                    ajax: 1,
+                },
+                context: this,
+            }).promise().then(
+                function (resp) {
+                    if (typeof resp === "string") {
+                        resp = JSON.parse(resp);
+                    }
+                    ReadingHistory._mergeData(viewModelData, viewModel, resp);
+                    this.hasNextPage(resp.hasNextPage);
+                    this.pageNum++;
+                    this.isLoading(false);
+                },
+
+                function () {
+                    alert("Server error");
+                    this.isLoading(false);
+                }
+            );
+            setTimeout(function () { this.isLoading(false) }.bind(this), 2000);
+        },
+        isLoading: ko.observable(false),
+    };
+
     ko.applyBindings(viewModel, $(nodeOrSelector).get(0));
 };
 
 ReadingHistory._prepareViewModelData = function (data) {
     var result = {};
-    for (var key in data.data) {
+    Object.keys(data.data).forEach(function (key) {
         var item = data.data[key];
         var year = item.year;
         if (typeof result[year] === "undefined") {
             result[year] = new ReadingHistory.YearViewModel(year, []);
         }
         result[year].items.push(new ReadingHistory.ItemViewModel(item));
-    }
+    });
     return result;
+};
+
+ReadingHistory._mergeData = function (viewModelData, viewModel, newData) {
+    Object.keys(newData.data).forEach(function (key) {
+        var item = newData.data[key];
+        var year = item.year;
+        if (typeof viewModelData[year] === "undefined") {
+            viewModelData[year] = new ReadingHistory.YearViewModel(year, []);
+            viewModel.years.push(viewModelData[year]);
+        }
+        viewModelData[year].items.push(new ReadingHistory.ItemViewModel(item));
+    });
 };
