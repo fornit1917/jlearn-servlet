@@ -1,7 +1,7 @@
 <#ftl output_format="HTML">
 <#-- @ftlvariable name="message" type="java.lang.String" -->
 <#-- @ftlvariable name="criteria" type="jlearn.servlet.dto.BookSearchCriteria" -->
-<#-- @ftlvariable name="books" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.entity.Book>" -->
+<#-- @ftlvariable name="books" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.dto.Book>" -->
 
 <#include "../inner_base.ftl">
 <#include "../_pager.ftl">
@@ -64,7 +64,7 @@
             <th>Author</th>
             <th>Title</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th class="actions-column">Actions</th>
         </tr>
         </thead>
         <#assign deleteAction = urlHelper.path("/book/delete") />
@@ -74,11 +74,11 @@
                 <td>${b.getAuthor()}</td>
                 <td>${b.getTitle()}</td>
                 <td>${b.getStatus().toString()}</td>
-                <td>
+                <td class="actions-column">
                     <a href="${urlHelper.path("/book/update?id=") + b.getId()}" class="btn btn-sm btn-warning" title="Edit">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a>
-                    <form method="post" action="${deleteAction}" class="action-form">
+                    <form method="post" action="${deleteAction}" class="action-form book-delete-form">
                         <input type="hidden" name="id" value="${b.getId()}">
                         <input type="hidden" name="redirectUrl" value="${requestUrl}">
                         <button type="submit" class="btn btn-sm btn-danger" title="Delete">
@@ -100,6 +100,7 @@
     <script>
         $(function () {
             BookFilterForm.init("#book-filter-form");
+            DeleteButtons.init(".book-delete-form")
         });
     </script>
 </#macro>

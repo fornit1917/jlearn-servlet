@@ -1,6 +1,6 @@
 <#ftl output_format="HTML">
 <#-- @ftlvariable name="criteria" type="jlearn.servlet.dto.UserSearchCriteria" -->
-<#-- @ftlvariable name="users" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.entity.User>" -->
+<#-- @ftlvariable name="users" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.dto.User>" -->
 
 <#include "../inner_base.ftl">
 <#include "../_pager.ftl">
@@ -37,7 +37,7 @@
                 <th>Email</th>
                 <th>Admin</th>
                 <th>Date</th>
-                <th>Actions</th>
+                <th class="actions-column">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -48,10 +48,10 @@
                     <td>${u.getEmail()}</td>
                     <td>${u.isAdmin()?then("Yes", "No")}</td>
                     <td>${u.getCreateDate("yyyy-MM-dd")}</td>
-                    <td>
+                    <td class="actions-column">
                         <#if u.isActive() >
                             <#if u.getId() != user.getId() >
-                                <form method="POST" action="${setActiveUrl}">
+                                <form method="POST" action="${setActiveUrl}" class="user-delete-form">
                                     <input type="hidden" name="id" value="${u.getId()}">
                                     <input type="hidden" name="active" value="0">
                                     <input type="hidden" name="redirectUrl" value="${requestUrl}">
@@ -77,6 +77,11 @@
         </tbody>
     </table>
     <@pager pageResult=users/>
+    <script>
+        $(function () {
+            DeleteButtons.init(".user-delete-form")
+        });
+    </script>
 <#else>
     <p>Your request does not have any result</p>
 </#if>

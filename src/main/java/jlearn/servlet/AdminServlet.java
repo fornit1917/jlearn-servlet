@@ -2,7 +2,7 @@ package jlearn.servlet;
 
 
 import jlearn.servlet.dto.UserSearchCriteria;
-import jlearn.servlet.entity.User;
+import jlearn.servlet.dto.User;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
@@ -103,7 +103,7 @@ public class AdminServlet extends AppBaseServlet
             PageResult<User> users = getServiceContainer().getUserService().getAll(criteria, pageRequest);
             data.put("users", users);
             data.put("criteria", criteria);
-            render("admin/user-list.ftl", data, req, resp);
+            render("admin/user_list.ftl", data, req, resp);
         } catch(SQLException e) {
             sendErrorByException(e);
         }

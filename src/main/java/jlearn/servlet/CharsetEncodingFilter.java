@@ -15,7 +15,12 @@ public class CharsetEncodingFilter implements Filter
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
     {
         servletRequest.setCharacterEncoding("UTF-8");
-        ((HttpServletResponse)servletResponse).addHeader("Content-Type", "text/html; charset=utf-8");
+        if (servletRequest.getParameter("ajax") == null) {
+            ((HttpServletResponse)servletResponse).addHeader("Content-Type", "text/html; charset=utf-8");
+        } else {
+            ((HttpServletResponse)servletResponse).addHeader("Content-Type", "application/json; charset=utf-8");
+        }
+
         filterChain.doFilter(servletRequest, servletResponse);
     }
 

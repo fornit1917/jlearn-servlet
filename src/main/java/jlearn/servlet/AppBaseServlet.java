@@ -43,6 +43,7 @@ public class AppBaseServlet extends HttpServlet
     protected void render(String templateName, Map<String, Object> data, HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException
     {
         data.put("urlHelper", urlHelper);
+        data.put("valueHelper", valueHelper);
         data.put("user", getUserSession(req).getUser());
         if (req.getQueryString() == null) {
             data.put("requestUrl", req.getRequestURL().toString());

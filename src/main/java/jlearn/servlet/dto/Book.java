@@ -1,4 +1,4 @@
-package jlearn.servlet.entity;
+package jlearn.servlet.dto;
 
 public class Book
 {
@@ -7,6 +7,21 @@ public class Book
     private String author = "";
     private boolean isFiction = true;
     private BookStatus status = BookStatus.UNREAD;
+
+    public Book()
+    {
+
+    }
+
+    public Book(Book src)
+    {
+        this.id = src.getId();
+        this.title = src.getTitle();
+        this.author = src.getAuthor();
+        this.isFiction = src.isFiction();
+        this.status = src.getStatus();
+    }
+
 
     public int getId() {
         return id;

@@ -1,6 +1,6 @@
 package jlearn.servlet;
 
-import jlearn.servlet.entity.User;
+import jlearn.servlet.dto.User;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.UserService;
 

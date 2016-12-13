@@ -1,8 +1,10 @@
 package jlearn.servlet.service;
 
 import jlearn.servlet.dto.BookSearchCriteria;
-import jlearn.servlet.entity.Book;
-import jlearn.servlet.entity.BookStatus;
+import jlearn.servlet.dto.Book;
+import jlearn.servlet.dto.BookReading;
+import jlearn.servlet.dto.BookStatus;
+import jlearn.servlet.exception.NotFoundException;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
@@ -12,15 +14,22 @@ import jlearn.servlet.service.utility.ErrorDescriptor;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BookService
 {
     private DataSource ds;
+    private BookReadingService bookReadingService;
 
     public BookService(DataSource ds)
     {
         this.ds = ds;
+    }
+
+    public void setBookReadingService(BookReadingService bookReadingService)
+    {
+        this.bookReadingService = bookReadingService;
     }
 
     public PageResult<Book> getAll(BookSearchCriteria criteria, PageRequest pageRequest) throws SQLException
@@ -31,7 +40,7 @@ public class BookService
         if (criteria.getStatus() == BookSearchCriteria.STATUS_READ) {
             queryBuilder.andWhere("status NOT IN (?, ?)", BookStatus.UNREAD.getValue(), BookStatus.ABORTED.getValue());
         } else if (criteria.getStatus() == BookSearchCriteria.STATUS_UNREAD) {
-            queryBuilder.andWhere("status = IN (?, ?)", BookStatus.UNREAD.getValue(), BookStatus.ABORTED.getValue());
+            queryBuilder.andWhere("status IN (?, ?)", BookStatus.UNREAD.getValue(), BookStatus.ABORTED.getValue());
         }
 
         if (criteria.getType() == BookSearchCriteria.TYPE_FICTION) {
@@ -71,32 +80,81 @@ public class BookService
         }
     }
 
-    public CommandResult<Book> addBook(int userId, Book book) throws SQLException
+    public CommandResult<Book> addBook(int userId, Book book, BookReading bookReading) throws SQLException
     {
         ErrorDescriptor validateError = validateBook(book);
         if (validateError != null) {
             return CommandResult.createErrorResult(validateError);
         }
 
+        if (book.getStatus() != BookStatus.UNREAD) {
+            validateError = bookReadingService.validateBookReading(bookReading);
+            if (validateError != null) {
+                return CommandResult.createErrorResult(validateError);
+            }
+        }
+
         try (Connection conn = ds.getConnection()) {
-            int bookId = insertBook(userId, book, conn);
-            book.setId(bookId);
+            try {
+                conn.setAutoCommit(false);
+                int bookId = insertBook(userId, book, conn);
+                book.setId(bookId);
+                if (book.getStatus() != BookStatus.UNREAD) {
+                    bookReadingService.addBookReadingForBook(book, bookReading, conn);
+                }
+            } catch (SQLException e) {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                book.setId(0);
+                throw e;
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
         }
 
         return CommandResult.createOkResult(book);
     }
 
-    public CommandResult<Book> editBook(Book book) throws SQLException
+    public CommandResult<Book> editBook(int bookId, int userId, Book newBookData, BookReading newBookReadingData) throws SQLException, NotFoundException
     {
-        ErrorDescriptor validateError = validateBook(book);
+        ErrorDescriptor validateError = validateBook(newBookData);
         if (validateError != null) {
             return CommandResult.createErrorResult(validateError);
         }
 
         try (Connection conn = ds.getConnection()) {
-            updateBook(book, conn);
-            return CommandResult.createOkResult(book);
+            conn.setAutoCommit(false);
+            try {
+                Book book = getBookByIdAndUser(bookId, userId);
+                if (book == null) {
+                    conn.rollback();
+                    conn.setAutoCommit(true);
+                    throw new NotFoundException();
+                }
+
+                if (!Arrays.asList(getAllowedNextStatuses(book.getStatus())).contains(newBookData.getStatus())) {
+                    return CommandResult.createErrorResult("Incorrect status");
+                }
+
+                newBookData.setId(bookId);
+                updateBook(book, newBookData, conn);
+                if (newBookData.getStatus() != BookStatus.UNREAD) {
+                    if (book.getStatus() == BookStatus.IN_PROGRESS || book.getStatus() == newBookData.getStatus()) {
+                        bookReadingService.updateLastBookReadingForBook(book, newBookReadingData, conn);
+                    } else {
+                        bookReadingService.addBookReadingForBook(newBookData, newBookReadingData, conn);
+                    }
+                }
+                conn.commit();
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                throw e;
+            }
         }
+        return CommandResult.createOkResult(newBookData);
     }
 
     public Book getBookByIdAndUser(int bookId, int userId) throws SQLException
@@ -123,6 +181,37 @@ public class BookService
             st.setInt(2, bookId);
             st.executeUpdate();
         }
+    }
+
+    public BookStatus[] getAllowedNextStatuses(BookStatus status)
+    {
+        switch (status) {
+            case UNREAD:
+                return BookStatus.values();
+            case IN_PROGRESS:
+                return new BookStatus[]{
+                    BookStatus.IN_PROGRESS,
+                    BookStatus.FINISHED,
+                    BookStatus.ABORTED,
+                };
+            case FINISHED:
+                return new BookStatus[]{
+                    BookStatus.FINISHED,
+                    BookStatus.IN_PROGRESS,
+                };
+            case ABORTED:
+                return new BookStatus[]{
+                    BookStatus.ABORTED,
+                    BookStatus.IN_PROGRESS,
+                };
+            default:
+                return new BookStatus[]{ status };
+        }
+    }
+
+    public BookReading getBookReadingInfo(Book book) throws SQLException
+    {
+        return bookReadingService.getBookReadingInfoForBook(book);
     }
 
     private ErrorDescriptor validateBook(Book book)
@@ -153,14 +242,14 @@ public class BookService
         }
     }
 
-    private void updateBook(Book book, Connection conn) throws SQLException
+    private void updateBook(Book book, Book newBookData, Connection conn) throws SQLException
     {
         String sql = "UPDATE book SET author=?, title=?, is_fiction=?, status=? WHERE id=?";
         try (PreparedStatement st = conn.prepareStatement(sql)) {
-            st.setString(1, book.getAuthor());
-            st.setString(2, book.getTitle());
-            st.setBoolean(3, book.isFiction());
-            st.setInt(4, book.getStatus().getValue());
+            st.setString(1, newBookData.getAuthor());
+            st.setString(2, newBookData.getTitle());
+            st.setBoolean(3, newBookData.isFiction());
+            st.setInt(4, newBookData.getStatus().getValue());
             st.setInt(5, book.getId());
             st.executeUpdate();
         }

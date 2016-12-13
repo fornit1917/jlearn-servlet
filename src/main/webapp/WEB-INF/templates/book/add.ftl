@@ -5,7 +5,7 @@
 <#macro inner_page_content>
     <h1>Add Book</h1>
     <hr/>
-    <#include "_form.ftl">
+    <#include "_book_form.ftl">
 </#macro>
 
 <@all_page_content></@all_page_content>

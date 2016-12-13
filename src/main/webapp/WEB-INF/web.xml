@@ -51,6 +51,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>bookReadingServlet</servlet-name>
+        <servlet-class>jlearn.servlet.BookReadingServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>adminServlet</servlet-name>
         <servlet-class>jlearn.servlet.AdminServlet</servlet-class>
     </servlet>
@@ -96,6 +101,11 @@
     <servlet-mapping>
         <servlet-name>bookServlet</servlet-name>
         <url-pattern>/book/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>bookReadingServlet</servlet-name>
+        <url-pattern>/book-reading/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

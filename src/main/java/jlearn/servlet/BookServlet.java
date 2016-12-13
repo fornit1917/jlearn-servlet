@@ -1,8 +1,11 @@
 package jlearn.servlet;
 
 import jlearn.servlet.dto.BookSearchCriteria;
-import jlearn.servlet.entity.Book;
-import jlearn.servlet.entity.BookStatus;
+import jlearn.servlet.dto.Book;
+import jlearn.servlet.dto.BookReading;
+import jlearn.servlet.dto.BookStatus;
+import jlearn.servlet.exception.NotFoundException;
+import jlearn.servlet.service.BookService;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
@@ -18,7 +21,6 @@ import java.util.Map;
 public class BookServlet extends AppBaseServlet
 {
     private final static String FLASH_SUCCESSFULLY = "book-successfully";
-    private final static String FLASH_ERROR = "book-error";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -90,25 +92,25 @@ public class BookServlet extends AppBaseServlet
 
     private void doGetBookAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        Map<String, Object> data = new HashMap<>();
         Book book = new Book();
-        data.put("book", book);
-        data.put("statuses", BookStatus.values());
+        BookReading bookReading = new BookReading();
+        Map<String, Object> data = getDataForBookFormPage(book, bookReading);
         render("book/add.ftl", data, req, resp);
     }
 
     private void doPostBookAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
         Book book = new Book();
-        popupateBookByRequest(req, book);
+        BookReading bookReading = new BookReading();
+        populateBookByRequest(req, book);
+        populateBookReadingByRequest(req, bookReading);
 
         int userId = getUserSession(req).getUser().getId();
 
         try {
-            CommandResult<Book> result = getServiceContainer().getBookService().addBook(userId, book);
+            CommandResult<Book> result = getServiceContainer().getBookService().addBook(userId, book, bookReading);
             if (result.isError()) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("book", book);
+                Map<String, Object> data = getDataForBookFormPage(book, bookReading);
                 data.put("error", result.getError().getMessage());
                 render("book/add.ftl", data, req, resp);
             } else {
@@ -143,14 +145,19 @@ public class BookServlet extends AppBaseServlet
         int userId = getUserSession(req).getUser().getId();
         int bookId = valueHelper.tryParseInt(req.getParameter("id"), 0);
         Map<String, Object> data = new HashMap<>();
-        data.put("statuses", BookStatus.values());
+        BookService bookService = getServiceContainer().getBookService();
         try {
-            Book book = getServiceContainer().getBookService().getBookByIdAndUser(bookId, userId);
+            Book book = bookService.getBookByIdAndUser(bookId, userId);
             if (book == null) {
                 resp.sendError(404);
                 return;
             }
+
+            BookReading bookReading = bookService.getBookReadingInfo(book);
+
             data.put("book", book);
+            data.put("bookReading", bookReading);
+            data.put("statuses", bookService.getAllowedNextStatuses(book.getStatus()));
             render("book/update.ftl", data, req, resp);
         } catch (SQLException e) {
             sendErrorByException(e);
@@ -161,31 +168,33 @@ public class BookServlet extends AppBaseServlet
     {
         int userId = getUserSession(req).getUser().getId();
         int bookId = valueHelper.tryParseInt(req.getParameter("id"), 0);
-        Map<String, Object> data = new HashMap<>();
-        data.put("statuses", BookStatus.values());
+        BookService bookService = getServiceContainer().getBookService();
 
         try {
-            Book book = getServiceContainer().getBookService().getBookByIdAndUser(bookId, userId);
-            if (book == null) {
-                resp.sendError(404);
-                return;
-            }
-            data.put("book", book);
-            popupateBookByRequest(req, book);
-            CommandResult<Book> result = getServiceContainer().getBookService().editBook(book);
+            Book newBookData = new Book();
+            populateBookByRequest(req, newBookData);
+
+            BookReading newBookReadingData = new BookReading();
+            populateBookReadingByRequest(req, newBookReadingData);
+
+            CommandResult<Book> result = bookService.editBook(bookId, userId, newBookData, newBookReadingData);
+            Book book = result.getResult();
+            Map<String, Object> data = getDataForBookFormPage(book, newBookReadingData);
+
             if (result.isError()) {
                 data.put("error", result.getError().getMessage());
             } else {
                 data.put("success", true);
             }
             render("book/update.ftl", data, req, resp);
-
         } catch (SQLException e) {
             sendErrorByException(e);
+        } catch (NotFoundException e) {
+            resp.sendError(404);
         }
     }
 
-    private void popupateBookByRequest(HttpServletRequest req, Book book)
+    private void populateBookByRequest(HttpServletRequest req, Book book)
     {
         book.setTitle(req.getParameter("title"));
         book.setAuthor(req.getParameter("author"));
@@ -193,4 +202,27 @@ public class BookServlet extends AppBaseServlet
         book.setFiction(req.getParameter("is_fiction") != null);
     }
 
+    private void populateBookReadingByRequest(HttpServletRequest req, BookReading bookReading)
+    {
+        bookReading.setStartYear(valueHelper.tryParseInt(req.getParameter("start_year"), 0));
+        bookReading.setStartMonth(valueHelper.tryParseInt(req.getParameter("start_month"), 0));
+        bookReading.setEndYear(valueHelper.tryParseInt(req.getParameter("end_year"), 0));
+        bookReading.setEndMonth(valueHelper.tryParseInt(req.getParameter("end_month"), 0));
+        bookReading.setStatus(BookStatus.getByValue(valueHelper.tryParseInt(req.getParameter("status"), 0)));
+        bookReading.setReread(req.getParameter("is_reread") != null);
+    }
+
+    private Map<String, Object> getDataForBookFormPage(Book book, BookReading bookReading) throws ServletException
+    {
+        Map<String, Object> data = new HashMap<>();
+        data.put("book", book);
+        data.put("bookReading", bookReading);
+        if (book.getId() == 0) {
+            data.put("statuses", BookStatus.values());
+        } else {
+            data.put("statuses", getServiceContainer().getBookService().getAllowedNextStatuses(book.getStatus()));
+        }
+
+        return data;
+    }
 }
