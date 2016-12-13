@@ -147,7 +147,7 @@ public class BookReadingService
 
             //get records
             st = queryBuilder
-                .selectColumns("b.author, b.title, br.status, br.start_year, br.start_month, br.end_year, br.end_month")
+                .selectColumns("b.author, b.title, br.status, br.start_year, br.start_month, br.end_year, br.end_month, br.is_reread")
                 .orderBy("GREATEST(br.start_year, br.end_year) DESC")
                 .limit(pageRequest.getPageSize())
                 .offset(pageRequest.getOffset())
@@ -159,6 +159,7 @@ public class BookReadingService
                 item.setAuthor(rs.getString("author"));
                 item.setTitle(rs.getString("title"));
                 item.setStatus(BookStatus.getByValue(rs.getInt("status")));
+                item.setReread(rs.getBoolean("is_reread"));
 
                 int startYear = rs.getInt("start_year");
                 item.setStart(valueHelper.getStringFromYearAndMonth(

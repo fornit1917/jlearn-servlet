@@ -41,12 +41,15 @@ BookFilterForm.init = function (nodeOrSelector) {
     })
 };
 
-var ReadingInfoForm = {
-    STATUS_UNREAD: 1,
-    STATUS_IN_PROGRESS: 2,
-    STATUS_FINISHED: 3,
-    STATUS_ABORTED: 4,
+
+var BookStatus = {
+    UNREAD: 1,
+    IN_PROGRESS: 2,
+    FINISHED: 3,
+    ABORTED: 4,    
 };
+
+var ReadingInfoForm = {};
 
 ReadingInfoForm.init = function (nodeOrSelector) {
     var $form = $(nodeOrSelector);
@@ -58,16 +61,16 @@ ReadingInfoForm.init = function (nodeOrSelector) {
     function updateControlsVisible() {
         var status = parseInt($statusDropdown.val());
         switch (status) {
-            case ReadingInfoForm.STATUS_UNREAD:
+            case BookStatus.UNREAD:
                 $historyForm.hide();
                 break;
-            case ReadingInfoForm.STATUS_IN_PROGRESS:
+            case BookStatus.IN_PROGRESS:
                 $historyForm.show();
                 $timeStart.show();
                 $timeEnd.hide();
                 break;
-            case ReadingInfoForm.STATUS_FINISHED:
-            case ReadingInfoForm.STATUS_ABORTED:
+            case BookStatus.FINISHED:
+            case BookStatus.ABORTED:
                 $historyForm.show();
                 $timeStart.show();
                 $timeEnd.show();
@@ -103,6 +106,59 @@ DeleteButtons.init = function (nodeOrSelectorForm) {
 
 var ReadingHistory = {};
 
+ReadingHistory.YearViewModel = function (year, items) {
+    this.year = year;
+    this.items = ko.observableArray(items);
+};
+
+ReadingHistory.ItemViewModel = function (item) {
+    this.title = item.title;
+    this.author = item.author;
+    this.start = item.start;
+    this.end = item.end;
+    this.isReread = item.isReread;
+    this.status = item.status;
+    this.statusName = item.statusName;
+};
+
+ReadingHistory.ItemViewModel.prototype.isInactive = function () {
+    return this.status == BookStatus.ABORTED || this.isReread;
+};
+
+ReadingHistory.ItemViewModel.prototype.getDisplayStatus = function () {
+    if (this.isReread) {
+        return "Reread";
+    }
+    return this.statusName;
+};
+
+ReadingHistory.ItemViewModel.prototype.showDate = function (dateType) {
+    if (dateType != "start" && dateType != "end") {
+        console.log("Wrong date type: " + dateType);
+        return "";
+    }
+    return this[dateType] !== "";
+};
+
 ReadingHistory.init = function (nodeOrSelector, requestUrl, data) {
-    console.log(data);
+    var viewModelData = this._prepareViewModelData(data);
+    var viewModel = {
+        years: Object.keys(viewModelData).sort().reverse().map(function (year) {
+            return viewModelData[year]
+        }),
+    }
+    ko.applyBindings(viewModel, $(nodeOrSelector).get(0));
+};
+
+ReadingHistory._prepareViewModelData = function (data) {
+    var result = {};
+    for (var key in data.data) {
+        var item = data.data[key];
+        var year = item.year;
+        if (typeof result[year] === "undefined") {
+            result[year] = new ReadingHistory.YearViewModel(year, []);
+        }
+        result[year].items.push(new ReadingHistory.ItemViewModel(item));
+    }
+    return result;
 };

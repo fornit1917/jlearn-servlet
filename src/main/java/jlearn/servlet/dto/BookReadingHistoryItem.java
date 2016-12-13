@@ -11,6 +11,7 @@ public class BookReadingHistoryItem
     private String end;
     private BookStatus status;
     private int year;
+    private boolean isReread;
 
     public String getAuthor() {
         return author;
@@ -60,6 +61,14 @@ public class BookReadingHistoryItem
         this.year = year;
     }
 
+    public boolean isReread() {
+        return isReread;
+    }
+
+    public void setReread(boolean reread) {
+        isReread = reread;
+    }
+
     public Map<String, Object> toMap()
     {
         Map<String, Object> result = new HashMap<>();
@@ -69,6 +78,8 @@ public class BookReadingHistoryItem
         result.put("end", end);
         result.put("year", year);
         result.put("status", status.getValue());
+        result.put("statusName", status.toString());
+        result.put("isReread", isReread);
         return result;
     }
 }
