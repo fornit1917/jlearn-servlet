@@ -152,6 +152,7 @@ CREATE TABLE "user" (
   email character varying(128) NOT NULL,
   is_admin boolean DEFAULT false NOT NULL,
   is_active boolean DEFAULT false NOT NULL,
+  is_public boolean DEFAULT false NOT NULL,
   hpassw character varying(64) NOT NULL,
   create_date timestamp without time zone DEFAULT now() NOT NULL,
   auth_key character varying(32),
@@ -275,6 +276,13 @@ CREATE UNIQUE INDEX user_email_uindex ON "user" USING btree (email);
 --
 
 CREATE UNIQUE INDEX user_invite_id_uindex ON "user" USING btree (invite_id);
+
+
+--
+-- Name: user_is_public_index; Type: INDEX; Schema: public; Owner: books
+--
+
+CREATE INDEX user_is_public_index ON "user" USING btree (is_public);
 
 
 --

@@ -46,6 +46,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>userServlet</servlet-name>
+        <servlet-class>jlearn.servlet.UserServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>bookServlet</servlet-name>
         <servlet-class>jlearn.servlet.BookServlet</servlet-class>
     </servlet>
@@ -83,6 +88,11 @@
     <servlet-mapping>
         <servlet-name>mainServlet</servlet-name>
         <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>userServlet</servlet-name>
+        <url-pattern>/user/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

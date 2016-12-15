@@ -62,7 +62,7 @@
                         ${user.getEmail()} <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="#"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+                        <li><a href="${urlHelper.path("/user/profile")}"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
                         <li><a href="${urlHelper.path("/logout")}"><span class="glyphicon glyphicon-log-out"></span> Exit</a></li>
                     </ul>
                 </li>

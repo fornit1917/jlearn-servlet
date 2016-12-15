@@ -2,6 +2,7 @@ package jlearn.servlet.service;
 
 import jlearn.servlet.dto.UserSearchCriteria;
 import jlearn.servlet.dto.User;
+import jlearn.servlet.exception.NotFoundException;
 import jlearn.servlet.helper.RandomHelper;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
@@ -48,14 +49,9 @@ public class UserService
             return CommandResult.createErrorResult("Email is not valid");
         }
 
-        if (password.isEmpty()) {
-            return CommandResult.createErrorResult("Password required");
-        }
-        if (password.length() < 6) {
-            return CommandResult.createErrorResult("Password must be at least 6 characters");
-        }
-        if (!password.equals(passwordRepeat)) {
-            return CommandResult.createErrorResult("Passwords do not match");
+        CommandResult validatePasswordResult = validatePassword(password, passwordRepeat);
+        if (validatePasswordResult.isError()) {
+            return validatePasswordResult;
         }
 
         try (Connection conn = ds.getConnection()) {
@@ -72,8 +68,7 @@ public class UserService
             user.setEmail(email);
             user.setActive(true);
             user.setAdmin(false);
-            user.setHpassw(BCrypt.hashpw(password, BCrypt.gensalt()));
-            user.setAuthKey(randomHelper.getRandomString(32));
+            setPasswordAndAuthKeyToDto(user, password);
 
             PreparedStatement st = conn.prepareStatement(
                 "INSERT INTO \"user\" (email, is_active, is_admin, hpassw, auth_key, invite_id) " +
@@ -120,7 +115,7 @@ public class UserService
         User user = null;
         try (Connection conn = ds.getConnection()) {
             PreparedStatement st = conn.prepareStatement(
-                "SELECT id, email, is_active, is_admin, auth_key, hpassw, create_date FROM \"user\" WHERE id=?"
+                "SELECT id, email, is_active, is_public, is_admin, auth_key, hpassw, create_date FROM \"user\" WHERE id=?"
             );
             st.setInt(1, userId);
             ResultSet rs = st.executeQuery();
@@ -180,12 +175,52 @@ public class UserService
         }
     }
 
+    public CommandResult<User> editProfile(int userId, String password, String passwordRepeat, boolean isPublic) throws SQLException, NotFoundException
+    {
+        User user = getById(userId);
+        if (user == null) {
+            throw new NotFoundException();
+        }
+        if (password != null && !password.isEmpty()) {
+            CommandResult validatePasswordResult = validatePassword(password, passwordRepeat);
+            if (validatePasswordResult.isError()) {
+                return validatePasswordResult;
+            }
+            setPasswordAndAuthKeyToDto(user, password);
+        }
+        user.setPublic(isPublic);
+        try (Connection conn = ds.getConnection()) {
+            String sql = "UPDATE \"user\" SET hpassw=?, auth_key=?, is_public=? WHERE id=?";
+            PreparedStatement st = conn.prepareStatement(sql);
+            st.setString(1, user.getHpassw());
+            st.setString(2, user.getAuthKey());;
+            st.setBoolean(3, user.isPublic());
+            st.setInt(4, userId);
+            st.executeUpdate();
+            return CommandResult.createOkResult(user);
+        }
+    }
+
+    private CommandResult<User> validatePassword(String password, String passwordRepeat)
+    {
+        if (password == null || password.isEmpty()) {
+            return CommandResult.createErrorResult("Password required");
+        }
+        if (password.length() < 6) {
+            return CommandResult.createErrorResult("Password must be at least 6 characters");
+        }
+        if (!password.equals(passwordRepeat)) {
+            return CommandResult.createErrorResult("Passwords do not match");
+        }
+        return CommandResult.createOkResult();
+    }
+
     private User getByEmail(String email) throws SQLException
     {
         User user = null;
         try (Connection conn = ds.getConnection()) {
             PreparedStatement st = conn.prepareStatement(
-                "SELECT id, email, is_active, is_admin, auth_key, hpassw, create_date FROM \"user\" WHERE email=?"
+                "SELECT id, email, is_active, is_admin, is_public, auth_key, hpassw, create_date FROM \"user\" WHERE email=?"
             );
             st.setString(1, email);
             ResultSet rs = st.executeQuery();
@@ -212,7 +247,14 @@ public class UserService
             user.setAuthKey(rs.getString("auth_key"));
             user.setActive(rs.getBoolean("is_active"));
             user.setHpassw(rs.getString("hpassw"));
+            user.setPublic(rs.getBoolean("is_public"));
         }
         return user;
+    }
+
+    private void setPasswordAndAuthKeyToDto(User user, String password)
+    {
+        user.setHpassw(BCrypt.hashpw(password, BCrypt.gensalt()));
+        user.setAuthKey(randomHelper.getRandomString(32));
     }
 }

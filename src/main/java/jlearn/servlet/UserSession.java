@@ -67,6 +67,17 @@ class UserSession
         return new UserSession(user);
     }
 
+    public static void updateToken(User user, HttpServletRequest req,  HttpServletResponse resp)
+    {
+        for (Cookie c: req.getCookies()) {
+            if (c.getName().equals("token")) {
+                c.setValue(getTokenForUser(user, req.getRemoteAddr()));
+                c.setPath(req.getContextPath() + "/");
+                resp.addCookie(c);
+            }
+        }
+    }
+
     public static void destroy(HttpServletResponse resp)
     {
         Cookie cookieId = new Cookie("uid", "");

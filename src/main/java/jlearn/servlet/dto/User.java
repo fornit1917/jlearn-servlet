@@ -16,6 +16,7 @@ public class User
     private boolean isAdmin;
     private boolean isActive;
     private Date createDate;
+    private boolean isPublic;
 
     public boolean isAdmin() {
         return isAdmin;
@@ -76,5 +77,13 @@ public class User
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(boolean aPublic) {
+        isPublic = aPublic;
     }
 }
