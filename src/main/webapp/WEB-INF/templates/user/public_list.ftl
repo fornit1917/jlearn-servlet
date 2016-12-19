@@ -26,8 +26,8 @@
         </table>
         <@pager pageResult=users/>
     <#else>
-        <div style="text-align: center">
-            <p>List of public users is empty.</p>
+        <div class="app-empty-message">
+            <p>Public users are not found.</p>
         </div>
     </#if>
 </#macro>

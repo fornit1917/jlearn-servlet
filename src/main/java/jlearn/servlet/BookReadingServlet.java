@@ -32,13 +32,16 @@ public class BookReadingServlet extends AppBaseServlet
     private void doGetHistory(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
         int pageNum = valueHelper.tryParseInt(req.getParameter("page"), 0);
+        int year = valueHelper.tryParseInt(req.getParameter("year"), 0);
         boolean ajax = req.getParameter("ajax") != null;
         PageRequest pageRequest = new PageRequest(pageNum, 20);
         BookReadingService bookReadingService = getServiceContainer().getBookReadingService();
         try {
             Map<String, Object> data = new HashMap<>();
+            data.put("year", year);
             int userId = valueHelper.tryParseInt(req.getParameter("userId"), 0);
             if (userId == 0) {
+                userId = getUserSession(req).getUser().getId();
                 data.put("menuHistory", true);
             } else {
                 User otherUser = getServiceContainer().getUserService().getById(userId);
@@ -51,7 +54,7 @@ public class BookReadingServlet extends AppBaseServlet
                 data.put("isOtherUser", true);
             }
 
-            PageResult<BookReadingHistoryItem> history = bookReadingService.getListForHistory(userId, pageRequest);
+            PageResult<BookReadingHistoryItem> history = bookReadingService.getListForHistory(userId, year, pageRequest);
             JSONObject result = getHistoryAsJson(history);
             data.put("json", result.toJSONString());
             if (ajax) {

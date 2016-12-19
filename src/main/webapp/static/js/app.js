@@ -140,7 +140,7 @@ ReadingHistory.ItemViewModel.prototype.showDate = function (dateType) {
     return this[dateType] !== "";
 };
 
-ReadingHistory.init = function (nodeOrSelector, requestUrl, data, userId) {
+ReadingHistory.init = function (nodeOrSelector, requestUrl, data, filters) {
     var viewModelData = this._prepareViewModelData(data);
     var viewModel = {
         years: ko.observableArray(
@@ -156,9 +156,15 @@ ReadingHistory.init = function (nodeOrSelector, requestUrl, data, userId) {
                 page: this.pageNum + 1,
                 ajax: 1,
             };
-            if (userId) {
-                params.userId = userId;
+            if (filters) {
+                if (filters.userId) {
+                    params.userId = filters.userId;
+                }
+                if (filters.year) {
+                    params.year = filters.year;
+                }
             }
+
             $.ajax(requestUrl, {
                 type: "GET",
                 data: params,
@@ -172,6 +178,7 @@ ReadingHistory.init = function (nodeOrSelector, requestUrl, data, userId) {
                     this.hasNextPage(resp.hasNextPage);
                     this.pageNum++;
                     this.isLoading(false);
+                    setTimeout(function () { window.scrollTo(0, document.body.scrollHeight); }, 60);
                 },
 
                 function () {

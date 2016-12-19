@@ -1,4 +1,5 @@
 <#ftl output_format="HTML">
+<#-- @ftlvariable name="year" type="java.lang.Integer" -->
 <#-- @ftlvariable name="otherUser" type="jlearn.servlet.dto.User" -->
 <#-- @ftlvariable name="isOtherUser" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="json" type="java.lang.String" -->
@@ -15,8 +16,16 @@
 <#else>
     <h1>Book Reading History</h1>
 </#if>
-
 <hr/>
+<form class="form form-inline" method="GET">
+    <div class="form-group">
+        <input class="form-control user-filter-email" type="number" name="year" value="${(year>0)?then(year?c, "")}" placeholder="Year"/>
+    </div>
+    <#if (isOtherUser!false) >
+        <input type="hidden" name="userId" value="${otherUser.getId()?c}"/>
+    </#if>
+    <button type="submit" class="btn btn-primary">Apply filter</button>
+</form>
 <div id="history">
     <div data-bind="foreach: years">
         <div class="app-history-year">
@@ -47,17 +56,16 @@
 </div>
 
 <script>
-    <#if (isOtherUser!false) >
-        $(function () {
-            ReadingHistory.init("#history", "${urlHelper.path("/book-reading/history")}", ${json?no_esc}, ${user.getId()?c});
-        });
-    <#else>
     $(function () {
-        ReadingHistory.init("#history", "${urlHelper.path("/book-reading/history")}", ${json?no_esc});
+        var filters = {};
+        <#if (isOtherUser!false) >
+            filters.userId = ${otherUser.getId()?c};
+        </#if >
+        <#if (year > 0) >
+            filters.year = ${year?c};
+        </#if>
+        ReadingHistory.init("#history", "${urlHelper.path("/book-reading/history")}", ${json?no_esc}, filters);
     });
-    </#if>
-
-
 </script>
 </#macro>
 

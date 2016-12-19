@@ -125,13 +125,16 @@ public class BookReadingService
         }
     }
 
-    public PageResult<BookReadingHistoryItem> getListForHistory(int userId, PageRequest pageRequest) throws SQLException
+    public PageResult<BookReadingHistoryItem> getListForHistory(int userId, int year, PageRequest pageRequest) throws SQLException
     {
         try (Connection conn = ds.getConnection()) {
             QueryBuilder queryBuilder = new QueryBuilder();
             queryBuilder
                 .table("book as b INNER JOIN book_reading as br ON (br.book_id=b.id)")
                 .andWhere("b.user_id=?", userId);
+            if (year > 0) {
+                queryBuilder.andWhere("GREATEST(br.start_year, br.end_year) = ?", year);
+            }
 
             //get total count
             PreparedStatement st = queryBuilder.selectCount().createPreparedStatement(conn);
@@ -148,7 +151,7 @@ public class BookReadingService
             //get records
             st = queryBuilder
                 .selectColumns("b.author, b.title, br.status, br.start_year, br.start_month, br.end_year, br.end_month, br.is_reread")
-                .orderBy("GREATEST(br.start_year, br.end_year) DESC")
+                .orderBy("GREATEST(br.start_year, br.end_year) DESC, start_month DESC")
                 .limit(pageRequest.getPageSize())
                 .offset(pageRequest.getOffset())
                 .createPreparedStatement(conn);
