@@ -1,4 +1,6 @@
 <#ftl output_format="HTML">
+<#-- @ftlvariable name="otherUser" type="jlearn.servlet.dto.User" -->
+<#-- @ftlvariable name="isOtherUser" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="json" type="java.lang.String" -->
 
 <#include "../inner_base.ftl">
@@ -8,7 +10,12 @@
 </#macro>
 
 <#macro inner_page_content>
-<h1>Book Reading History</h1>
+<#if (isOtherUser!false) >
+    <h1>Book Reading History for User ${otherUser.getEmail()}</h1>
+<#else>
+    <h1>Book Reading History</h1>
+</#if>
+
 <hr/>
 <div id="history">
     <div data-bind="foreach: years">
@@ -40,9 +47,17 @@
 </div>
 
 <script>
+    <#if (isOtherUser!false) >
+        $(function () {
+            ReadingHistory.init("#history", "${urlHelper.path("/book-reading/history")}", ${json?no_esc}, ${user.getId()?c});
+        });
+    <#else>
     $(function () {
         ReadingHistory.init("#history", "${urlHelper.path("/book-reading/history")}", ${json?no_esc});
     });
+    </#if>
+
+
 </script>
 </#macro>
 

@@ -8,6 +8,12 @@ public class UserSearchCriteria
 
     private String email;
     private int state;
+    private boolean isOnlyPublic;
+
+    public UserSearchCriteria(String email)
+    {
+        this.email = email == null ? "" : email;
+    }
 
     public UserSearchCriteria(String email, int state)
     {
@@ -15,13 +21,27 @@ public class UserSearchCriteria
         this.state = state;
     }
 
-    public String getEmail()
-    {
+    public String getEmail() {
         return email;
     }
 
-    public int getState()
-    {
+    public void setEmail(String email) {
+        this.email = email == null ? "" : email;
+    }
+
+    public int getState() {
         return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public boolean isOnlyPublic() {
+        return isOnlyPublic;
+    }
+
+    public void setOnlyPublic(boolean onlyPublic) {
+        isOnlyPublic = onlyPublic;
     }
 }

@@ -1,4 +1,6 @@
 <#ftl output_format="HTML">
+<#-- @ftlvariable name="otherUser" type="jlearn.servlet.dto.User" -->
+<#-- @ftlvariable name="isOtherUser" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="message" type="java.lang.String" -->
 <#-- @ftlvariable name="criteria" type="jlearn.servlet.dto.BookSearchCriteria" -->
 <#-- @ftlvariable name="books" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.dto.Book>" -->
@@ -7,8 +9,12 @@
 <#include "../_pager.ftl">
 
 <#macro inner_page_content>
-    <h1>Books List</h1>
-    <a class="btn btn-success add-book-btn-in-head pull-right" href="${urlHelper.path("/book/add")}">Add Book</a>
+    <#if (isOtherUser!false) >
+        <h1>Books List of User ${otherUser.getEmail()}</h1>
+    <#else>
+        <h1>Books List</h1>
+        <a class="btn btn-success add-book-btn-in-head pull-right" href="${urlHelper.path("/book/add")}">Add Book</a>
+    </#if>
     <hr/>
     <#if ((message!"") != "") >
         <div class="alert alert-success" role="alert">
@@ -49,6 +55,9 @@
                     </select>
                 </div>
             </div>
+            <#if isOtherUser!false >
+                <input type="hidden" name="userId" value="${otherUser.getId()?c}"/>
+            </#if>
             <div class="col-md-2">
                 <div class="form-group">
                     <label style="color:white;">.</label>
@@ -64,7 +73,9 @@
             <th>Author</th>
             <th>Title</th>
             <th>Status</th>
-            <th class="actions-column">Actions</th>
+            <#if (!(isOtherUser!false)) >
+                <th class="actions-column">Actions</th>
+            </#if>
         </tr>
         </thead>
         <#assign deleteAction = urlHelper.path("/book/delete") />
@@ -74,27 +85,33 @@
                 <td>${b.getAuthor()}</td>
                 <td>${b.getTitle()}</td>
                 <td>${b.getStatus().toString()}</td>
-                <td class="actions-column">
-                    <a href="${urlHelper.path("/book/update?id=") + b.getId()}" class="btn btn-sm btn-warning" title="Edit">
-                        <span class="glyphicon glyphicon-pencil"></span>
-                    </a>
-                    <form method="post" action="${deleteAction}" class="action-form book-delete-form">
-                        <input type="hidden" name="id" value="${b.getId()}">
-                        <input type="hidden" name="redirectUrl" value="${requestUrl}">
-                        <button type="submit" class="btn btn-sm btn-danger" title="Delete">
-                            <span class="glyphicon glyphicon-trash"></span>
-                        </button>
-                    </form>
-                </td>
+                <#if (!(isOtherUser!false)) >
+                    <td class="actions-column">
+                        <a href="${urlHelper.path("/book/update?id=") + b.getId()}" class="btn btn-sm btn-warning" title="Edit">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>
+                        <form method="post" action="${deleteAction}" class="action-form book-delete-form">
+                            <input type="hidden" name="id" value="${b.getId()}">
+                            <input type="hidden" name="redirectUrl" value="${requestUrl}">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                        </form>
+                    </td>
+                </#if>
             </tr>
             </#list>
         </tbody>
     </table>
         <@pager pageResult=books/>
     <#else>
-    <div style="text-align: center">
-        <p>You don't have books by this request.</p>
-        <a href="${urlHelper.path("/book/add")}" class="btn btn-success">Add Book</a>
+    <div class="app-empty-message">
+        <#if (!(isOtherUser!false)) >
+            <p>You don't have books by this request.</p>
+            <a href="${urlHelper.path("/book/add")}" class="btn btn-success">Add Book</a>
+        <#else >
+            <p>This user does not have books by this request.</p>
+        </#if>
     </div>
     </#if>
     <script>

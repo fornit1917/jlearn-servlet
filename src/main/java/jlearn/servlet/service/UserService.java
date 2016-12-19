@@ -115,9 +115,10 @@ public class UserService
         User user = null;
         try (Connection conn = ds.getConnection()) {
             PreparedStatement st = conn.prepareStatement(
-                "SELECT id, email, is_active, is_public, is_admin, auth_key, hpassw, create_date FROM \"user\" WHERE id=?"
+                "SELECT id, email, is_active, is_public, is_admin, auth_key, hpassw, create_date FROM \"user\" WHERE id=? AND is_active=?"
             );
             st.setInt(1, userId);
+            st.setBoolean(2, true);
             ResultSet rs = st.executeQuery();
             user = createOneUserFromResultSet(rs);
         }
@@ -136,6 +137,9 @@ public class UserService
             queryBuilder.andWhere("is_active = ?", true);
         } else if (state == UserSearchCriteria.STATE_INACTIVE) {
             queryBuilder.andWhere("is_active = ?", false);
+        }
+        if (criteria.isOnlyPublic()) {
+            queryBuilder.andWhere("is_public = ?", true);
         }
         try (Connection conn = ds.getConnection()) {
             //get total count
@@ -163,6 +167,13 @@ public class UserService
 
             return new PageResult<>(users, totalCount, pageRequest);
         }
+    }
+
+    public PageResult<User> getPublicUsers(UserSearchCriteria criteria, PageRequest pageRequest) throws SQLException
+    {
+        criteria.setOnlyPublic(true);
+        criteria.setState(UserSearchCriteria.STATE_ACTIVE);
+        return getAll(criteria, pageRequest);
     }
 
     public void setActive(int userId, boolean isActive) throws SQLException
@@ -220,9 +231,10 @@ public class UserService
         User user = null;
         try (Connection conn = ds.getConnection()) {
             PreparedStatement st = conn.prepareStatement(
-                "SELECT id, email, is_active, is_admin, is_public, auth_key, hpassw, create_date FROM \"user\" WHERE email=?"
+                "SELECT id, email, is_active, is_admin, is_public, auth_key, hpassw, create_date FROM \"user\" WHERE email=? AND is_active=?"
             );
             st.setString(1, email);
+            st.setBoolean(2, true);
             ResultSet rs = st.executeQuery();
             user = createOneUserFromResultSet(rs);
         }

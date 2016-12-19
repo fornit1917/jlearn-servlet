@@ -1,6 +1,7 @@
 package jlearn.servlet;
 
 import jlearn.servlet.dto.BookReadingHistoryItem;
+import jlearn.servlet.dto.User;
 import jlearn.servlet.service.BookReadingService;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
@@ -31,14 +32,27 @@ public class BookReadingServlet extends AppBaseServlet
     private void doGetHistory(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
         int pageNum = valueHelper.tryParseInt(req.getParameter("page"), 0);
-        int userId = getUserSession(req).getUser().getId();
         boolean ajax = req.getParameter("ajax") != null;
         PageRequest pageRequest = new PageRequest(pageNum, 20);
         BookReadingService bookReadingService = getServiceContainer().getBookReadingService();
         try {
+            Map<String, Object> data = new HashMap<>();
+            int userId = valueHelper.tryParseInt(req.getParameter("userId"), 0);
+            if (userId == 0) {
+                data.put("menuHistory", true);
+            } else {
+                User otherUser = getServiceContainer().getUserService().getById(userId);
+                if (!otherUser.isPublic()) {
+                    resp.sendError(403);
+                    return;
+                }
+                data.put("otherUser", otherUser);
+                data.put("menuPublic", true);
+                data.put("isOtherUser", true);
+            }
+
             PageResult<BookReadingHistoryItem> history = bookReadingService.getListForHistory(userId, pageRequest);
             JSONObject result = getHistoryAsJson(history);
-            Map<String, Object> data = new HashMap<>();
             data.put("json", result.toJSONString());
             if (ajax) {
                 result.writeJSONString(resp.getWriter());

@@ -1,9 +1,12 @@
 package jlearn.servlet;
 
 import jlearn.servlet.dto.User;
+import jlearn.servlet.dto.UserSearchCriteria;
 import jlearn.servlet.exception.NotFoundException;
 import jlearn.servlet.service.UserService;
 import jlearn.servlet.service.utility.CommandResult;
+import jlearn.servlet.service.utility.PageRequest;
+import jlearn.servlet.service.utility.PageResult;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +28,9 @@ public class UserServlet extends AppBaseServlet
         switch (action) {
             case "profile":
                 doGetProfile(req, resp);
+                break;
+            case "public-list":
+                doGetPublicList(req, resp);
                 break;
             default:
                 resp.sendError(404);
@@ -84,6 +90,23 @@ public class UserServlet extends AppBaseServlet
             sendErrorByException(e);
         } catch (NotFoundException e) {
             resp.sendError(404);
+        }
+    }
+
+    private void doGetPublicList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        UserSearchCriteria criteria = new UserSearchCriteria(req.getParameter("email"));
+        int pageNum = valueHelper.tryParseInt(req.getParameter("page"));
+        PageRequest pageRequest = new PageRequest(pageNum, 20);
+        try {
+            PageResult<User> users = getServiceContainer().getUserService().getPublicUsers(criteria, pageRequest);
+            Map<String, Object> data = new HashMap<>();
+            data.put("users", users);
+            data.put("criteria", criteria);
+            data.put("menuPublic", true);
+            render("user/public_list.ftl", data, req, resp);
+        } catch (SQLException e) {
+            sendErrorByException(e);
         }
     }
 }

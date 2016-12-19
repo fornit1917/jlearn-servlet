@@ -5,6 +5,7 @@
 <#-- @ftlvariable name="menuAdmin" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="menuAdminUser" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="menuAdminInvite" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="menuPublic" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="user" type="jlearn.servlet.dto.User" -->
 
 <#include "base.ftl">
@@ -21,7 +22,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Books Tracker</a>
+            <a class="navbar-brand" href="${urlHelper.path("/book/list")}">Books Tracker</a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -39,6 +40,9 @@
                 </li>
                 <li class="${(menuHistory!false)?then("active", "")}">
                     <a href="${urlHelper.path("/book-reading/history")}">History of Read</a>
+                </li>
+                <li class="${(menuPublic!false)?then("active", "")}">
+                    <a href="${urlHelper.path("/user/public-list")}">Public Profiles</a>
                 </li>
                 <#if (user.isAdmin()) >
                     <li class="dropdown ${(menuAdmin!false)?then("active", "")}">

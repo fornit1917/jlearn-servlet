@@ -1,9 +1,6 @@
 package jlearn.servlet;
 
-import jlearn.servlet.dto.BookSearchCriteria;
-import jlearn.servlet.dto.Book;
-import jlearn.servlet.dto.BookReading;
-import jlearn.servlet.dto.BookStatus;
+import jlearn.servlet.dto.*;
 import jlearn.servlet.exception.NotFoundException;
 import jlearn.servlet.service.BookService;
 import jlearn.servlet.service.utility.CommandResult;
@@ -66,7 +63,6 @@ public class BookServlet extends AppBaseServlet
         int pageNum = valueHelper.tryParseInt(req.getParameter("page"));
 
         BookSearchCriteria criteria = new BookSearchCriteria();
-        criteria.setUserId(getUserSession(req).getUser().getId());
         criteria.setTitle(req.getParameter("title"));
         criteria.setAuthor(req.getParameter("author"));
         criteria.setType(valueHelper.tryParseInt(req.getParameter("type"), BookSearchCriteria.TYPE_ALL));
@@ -81,6 +77,22 @@ public class BookServlet extends AppBaseServlet
         }
 
         try {
+            int userId = valueHelper.tryParseInt(req.getParameter("userId"), 0);
+            if (userId == 0) {
+                criteria.setUserId(getUserSession(req).getUser().getId());
+                data.put("menuBook", true);
+            } else {
+                User otherUser = getServiceContainer().getUserService().getById(userId);
+                if (!otherUser.isPublic()) {
+                    resp.sendError(403);
+                    return;
+                }
+                criteria.setUserId(userId);
+                data.put("otherUser", otherUser);
+                data.put("menuPublic", true);
+                data.put("isOtherUser", true);
+            }
+
             PageResult<Book> books = getServiceContainer().getBookService().getAll(criteria, pageRequest);
             data.put("books", books);
             data.put("criteria", criteria);

@@ -140,7 +140,7 @@ ReadingHistory.ItemViewModel.prototype.showDate = function (dateType) {
     return this[dateType] !== "";
 };
 
-ReadingHistory.init = function (nodeOrSelector, requestUrl, data) {
+ReadingHistory.init = function (nodeOrSelector, requestUrl, data, userId) {
     var viewModelData = this._prepareViewModelData(data);
     var viewModel = {
         years: ko.observableArray(
@@ -152,12 +152,16 @@ ReadingHistory.init = function (nodeOrSelector, requestUrl, data) {
         hasNextPage: ko.observable(data.hasNextPage),
         onLoadClick: function () {
             this.isLoading(true);
+            var params = {
+                page: this.pageNum + 1,
+                ajax: 1,
+            };
+            if (userId) {
+                params.userId = userId;
+            }
             $.ajax(requestUrl, {
                 type: "GET",
-                data: {
-                    page: this.pageNum + 1,
-                    ajax: 1,
-                },
+                data: params,
                 context: this,
             }).promise().then(
                 function (resp) {
