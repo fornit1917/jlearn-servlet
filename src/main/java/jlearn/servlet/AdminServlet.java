@@ -3,6 +3,8 @@ package jlearn.servlet;
 
 import jlearn.servlet.dto.UserSearchCriteria;
 import jlearn.servlet.dto.User;
+import jlearn.servlet.exception.NotFoundException;
+import jlearn.servlet.service.UserService;
 import jlearn.servlet.service.utility.CommandResult;
 import jlearn.servlet.service.utility.PageRequest;
 import jlearn.servlet.service.utility.PageResult;
@@ -20,6 +22,9 @@ public class AdminServlet extends AppBaseServlet
     private static final String FLASH_ADDED_INVITE_CODE = "added-invite-code";
     private static final String FLASH_ADD_INVITE_ERROR = "add-invite-error";
 
+    private static final String FLASH_EDIT_USER_SUCCESS = "admin-edit-user-success";
+    private static final String FLASH_EDIT_USER_ERROR = "admin-flash-edit-user-error";
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
@@ -30,6 +35,9 @@ public class AdminServlet extends AppBaseServlet
                 break;
             case "user-list":
                 doGetUserList(req, resp);
+                break;
+            case "user-edit":
+                doGetUserEdit(req, resp);
                 break;
             default:
                 resp.sendError(404);
@@ -47,6 +55,9 @@ public class AdminServlet extends AppBaseServlet
                 break;
             case "user-set-active":
                 doPostUserSetActive(req, resp);
+                break;
+            case "user-edit":
+                doPostUserEdit(req, resp);
                 break;
             default:
                 resp.sendError(404);
@@ -97,6 +108,11 @@ public class AdminServlet extends AppBaseServlet
         String email = req.getParameter("email");
         int pageNum = valueHelper.tryParseInt(req.getParameter("page"));
         int state = valueHelper.tryParseInt(req.getParameter("state"), UserSearchCriteria.STATE_ALL);
+        String message = (String) req.getSession().getAttribute(FLASH_EDIT_USER_SUCCESS);
+        if (message != null) {
+            data.put("message", message);
+            req.getSession().removeAttribute(FLASH_EDIT_USER_SUCCESS);
+        }
         UserSearchCriteria criteria = new UserSearchCriteria(email, state);
         PageRequest pageRequest = new PageRequest(pageNum, 20);
         try {
@@ -119,6 +135,58 @@ public class AdminServlet extends AppBaseServlet
             resp.sendRedirect(redirectUrl);
         } catch (SQLException e) {
             sendErrorByException(e);
+        }
+    }
+
+    private void doGetUserEdit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        int userId = valueHelper.tryParseInt(req.getParameter("id"));
+        String redirectUrl = req.getParameter("redirectUrl");
+        if (redirectUrl == null) {
+            redirectUrl = urlHelper.path("admin/user-list");
+        }
+        UserService userService = getServiceContainer().getUserService();
+        try {
+            User editableUser = userService.getById(userId);
+            Map<String, Object> data = new HashMap<>();
+            data.put("editableUser", editableUser);
+            data.put("redirectUrl", redirectUrl);
+
+            String error = (String) req.getSession().getAttribute(FLASH_EDIT_USER_ERROR);
+            if (error != null) {
+                data.put("error", error);
+                req.getSession().removeAttribute(FLASH_EDIT_USER_ERROR);
+            }
+
+            render("admin/user_edit.ftl", data, req, resp);
+        } catch (SQLException e) {
+            sendErrorByException(e);
+        }
+
+    }
+
+    private void doPostUserEdit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        UserService userService = getServiceContainer().getUserService();
+        int userId = valueHelper.tryParseInt(req.getParameter("id"));
+        String password = req.getParameter("password");
+        String passwordRepeat = req.getParameter("password_repeat");
+        String redirectUrl = req.getParameter("redirectUrl");
+        boolean isPublic = req.getParameter("is_public") != null;
+
+        try {
+            CommandResult<User> result = userService.editProfile(userId, password, passwordRepeat, isPublic);
+            if (result.isError()) {
+                req.getSession().setAttribute(FLASH_EDIT_USER_ERROR, result.getError().getMessage());
+                resp.sendRedirect(urlHelper.path("/admin/user-edit?redirectUrl=" + redirectUrl + "&id=" + userId));
+            } else {
+                req.getSession().setAttribute(FLASH_EDIT_USER_SUCCESS, "The Profile has been updated successfully");
+                resp.sendRedirect(redirectUrl);
+            }
+        } catch (SQLException e) {
+            sendErrorByException(e);
+        } catch (NotFoundException e) {
+            resp.sendError(404);
         }
     }
 }

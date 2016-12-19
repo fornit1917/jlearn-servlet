@@ -1,4 +1,5 @@
 <#ftl output_format="HTML">
+<#-- @ftlvariable name="message" type="java.lang.String" -->
 <#-- @ftlvariable name="criteria" type="jlearn.servlet.dto.UserSearchCriteria" -->
 <#-- @ftlvariable name="users" type="jlearn.servlet.service.utility.PageResult<jlearn.servlet.dto.User>" -->
 
@@ -9,6 +10,13 @@
 
 <h1>User list</h1>
 <hr/>
+
+<#if ((message!"") != "") >
+    <div class="alert alert-success" role="alert">
+        ${message}
+    </div>
+</#if>
+
 <form class="form form-inline user-filter-form" id="user-filter-form" method="GET">
     <div class="form-group">
         <input class="form-control user-filter-email" type="text" name="email" value="${criteria.getEmail()}" placeholder="Email"/>
@@ -42,6 +50,7 @@
         </thead>
         <tbody>
             <#assign setActiveUrl = urlHelper.path("/admin/user-set-active") />
+            <#assign editUrl = urlHelper.path("/admin/user-edit") />
             <#list users.getSlice() as u >
                 <tr class="${u.isActive()?then("", "disabled")}">
                     <td>${u.getId()}</td>
@@ -51,7 +60,10 @@
                     <td class="actions-column">
                         <#if u.isActive() >
                             <#if u.getId() != user.getId() >
-                                <form method="POST" action="${setActiveUrl}" class="user-delete-form">
+                                <a class="btn btn-warning btn-sm" href="${editUrl + "?redirectUrl=" + requestUrl + "&id=" + u.getId()}">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </a>
+                                <form method="POST" action="${setActiveUrl}" class="action-form user-delete-form">
                                     <input type="hidden" name="id" value="${u.getId()}">
                                     <input type="hidden" name="active" value="0">
                                     <input type="hidden" name="redirectUrl" value="${requestUrl}">
@@ -61,14 +73,13 @@
                                 </form>
                             </#if>
                         <#else>
-                            <form method="POST" action="${setActiveUrl}">
+                            <form method="POST" action="${setActiveUrl}" class="action-form">
                                 <input type="hidden" name="id" value="${u.getId()}">
                                 <input type="hidden" name="active" value="1">
                                 <input type="hidden" name="redirectUrl" value="${requestUrl}">
                                 <button type="submit" class="btn btn-sm btn-success" title="Activate">
                                     <span class="glyphicon glyphicon-ok"></span>
                                 </button>
-
                             </form>
                         </#if>
                     </td>
