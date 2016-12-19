@@ -152,11 +152,11 @@ CREATE TABLE "user" (
   email character varying(128) NOT NULL,
   is_admin boolean DEFAULT false NOT NULL,
   is_active boolean DEFAULT false NOT NULL,
-  is_public boolean DEFAULT false NOT NULL,
   hpassw character varying(64) NOT NULL,
   create_date timestamp without time zone DEFAULT now() NOT NULL,
   auth_key character varying(32),
-  invite_id integer
+  invite_id integer,
+  is_public boolean DEFAULT false
 );
 
 
@@ -248,6 +248,13 @@ ALTER TABLE ONLY "user"
 --
 
 CREATE INDEX book_reading_end_year_index ON book_reading USING btree (end_year);
+
+
+--
+-- Name: book_reading_year_index; Type: INDEX; Schema: public; Owner: books
+--
+
+CREATE INDEX book_reading_year_index ON book_reading USING btree ((GREATEST(start_year, end_year)));
 
 
 --
