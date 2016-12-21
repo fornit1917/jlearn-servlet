@@ -13,7 +13,7 @@
         <h1>Books List of User ${otherUser.getEmail()}</h1>
     <#else>
         <h1>Books List</h1>
-        <a class="btn btn-success add-book-btn-in-head pull-right" href="${urlHelper.path("/book/add")}">Add Book</a>
+        <a class="btn btn-success app-btn-in-head pull-right" href="${urlHelper.path("/book/add")}">Add Book</a>
     </#if>
     <hr/>
     <#if ((message!"") != "") >
@@ -87,6 +87,9 @@
                 <td>${b.getStatus().toString()}</td>
                 <#if (!(isOtherUser!false)) >
                     <td class="actions-column">
+                        <a href="${urlHelper.path("/book-details?id=") + b.getId() + "&redirectUrl=" + requestUrl}" class="btn btn-sm btn-primary" title="View Details">
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                        </a>
                         <a href="${urlHelper.path("/book/update?id=") + b.getId()}" class="btn btn-sm btn-warning" title="Edit">
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>

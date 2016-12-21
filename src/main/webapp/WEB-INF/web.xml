@@ -23,11 +23,13 @@
     <filter>
         <filter-name>charsetEncodingFilter</filter-name>
         <filter-class>jlearn.servlet.CharsetEncodingFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
 
     <filter>
         <filter-name>authFilter</filter-name>
         <filter-class>jlearn.servlet.AuthFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
 
     <filter-mapping>
@@ -58,6 +60,12 @@
     <servlet>
         <servlet-name>bookReadingServlet</servlet-name>
         <servlet-class>jlearn.servlet.BookReadingServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>bookDetailsServlet</servlet-name>
+        <servlet-class>jlearn.servlet.BookDetailsServlet</servlet-class>
+        <async-supported>true</async-supported>
     </servlet>
 
     <servlet>
@@ -116,6 +124,11 @@
     <servlet-mapping>
         <servlet-name>bookReadingServlet</servlet-name>
         <url-pattern>/book-reading/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>bookDetailsServlet</servlet-name>
+        <url-pattern>/book-details</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

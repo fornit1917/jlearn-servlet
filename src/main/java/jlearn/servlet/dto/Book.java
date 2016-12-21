@@ -62,4 +62,9 @@ public class Book
     public void setStatus(BookStatus status) {
         this.status = status;
     }
+
+    public String getFullName()
+    {
+        return getAuthor() + " " + getTitle();
+    }
 }

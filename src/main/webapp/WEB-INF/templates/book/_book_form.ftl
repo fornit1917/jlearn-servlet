@@ -9,7 +9,7 @@
     </div>
 </#if>
 
-<form class="form form-horizontal book-form" method="POST">
+<form class="form form-horizontal app-book-form" method="POST">
 
     <fieldset>
         <div class="form-group">

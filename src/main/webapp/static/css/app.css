@@ -66,11 +66,11 @@
     display: inline-block;
 }
 
-.add-book-btn-in-head {
+.app-btn-in-head {
     margin-top: -45px;
 }
 
-.book-form {
+.app-book-form {
     max-width: 800px;
     margin: 10px 0 20px 0;
 }
