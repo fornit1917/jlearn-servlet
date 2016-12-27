@@ -9,6 +9,11 @@
         <param-value>${env}</param-value>
     </context-param>
 
+    <context-param>
+        <param-name>use-jndi</param-name>
+        <param-value>${use-jndi}</param-value>
+    </context-param>
+
     <resource-ref>
         <description>DB Connection</description>
         <res-ref-name>jdbc/booksdb</res-ref-name>

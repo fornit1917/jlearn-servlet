@@ -12,7 +12,7 @@
         </webroots>
         <sourceRoots>
           <root url="file://$MODULE_DIR$/src/main/java" />
-          <root url="file://$MODULE_DIR$/src/main/resources" />
+          <root url="file://$MODULE_DIR$/src/main/resources/logback/file" />
         </sourceRoots>
       </configuration>
     </facet>
@@ -22,8 +22,8 @@
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources/logback/file" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/src/main/webapp/node_modules" />
       <excludeFolder url="file://$MODULE_DIR$/src/main/webapp/static/dist" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
@@ -57,5 +57,7 @@
     <orderEntry type="library" name="Maven: com.typesafe.netty:netty-reactive-streams:1.0.8" level="project" />
     <orderEntry type="library" name="Maven: org.javassist:javassist:3.21.0-GA" level="project" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.10.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-jdbc:8.5.9" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-juli:8.5.9" level="project" />
   </component>
 </module>
