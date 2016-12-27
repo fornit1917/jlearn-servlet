@@ -21,8 +21,6 @@ import java.util.Map;
 
 public class AppBaseServlet extends HttpServlet
 {
-    private Configuration templateConfig;
-
     protected UrlHelper urlHelper;
     protected ValueHelper valueHelper;
 
@@ -32,12 +30,6 @@ public class AppBaseServlet extends HttpServlet
         super.init(config);
         urlHelper = new UrlHelper(getServletContext());
         valueHelper = new ValueHelper();
-        templateConfig = new Configuration(Configuration.VERSION_2_3_25);
-        try {
-            templateConfig.setDirectoryForTemplateLoading(new File(getServletContext().getRealPath("WEB-INF/templates")));
-        } catch (IOException e) {
-            throw new ServletException(e);
-        }
     }
 
     protected void render(String templateName, Map<String, Object> data, HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException
@@ -51,9 +43,8 @@ public class AppBaseServlet extends HttpServlet
             data.put("requestUrl", req.getRequestURL().append("?").append(req.getQueryString()).toString());
         }
 
-
         try {
-            Template template = templateConfig.getTemplate(templateName);
+            Template template = getServiceContainer().getTemplatesConfig().getTemplate(templateName);
             template.process(data, resp.getWriter());
         } catch (IOException | TemplateException e) {
             sendErrorByException(e);

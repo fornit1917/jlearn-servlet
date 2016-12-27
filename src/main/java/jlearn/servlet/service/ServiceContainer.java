@@ -1,12 +1,16 @@
 package jlearn.servlet.service;
 
 
+import freemarker.template.Configuration;
+
 public class ServiceContainer
 {
     private UserService userService;
     private InviteService inviteService;
     private BookService bookService;
     private BookReadingService bookReadingService;
+    private BookDetailsService bookDetailsService;
+    private Configuration templatesConfig;
 
     public UserService getUserService()
     {
@@ -46,5 +50,21 @@ public class ServiceContainer
     public void setBookReadingService(BookReadingService bookReadingService)
     {
         this.bookReadingService = bookReadingService;
+    }
+
+    public BookDetailsService getBookDetailsService() {
+        return bookDetailsService;
+    }
+
+    public void setBookDetailsService(BookDetailsService bookDetailsService) {
+        this.bookDetailsService = bookDetailsService;
+    }
+
+    public Configuration getTemplatesConfig() {
+        return templatesConfig;
+    }
+
+    public void setTemplatesConfig(Configuration templatesConfig) {
+        this.templatesConfig = templatesConfig;
     }
 }

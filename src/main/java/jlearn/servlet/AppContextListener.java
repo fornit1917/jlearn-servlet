@@ -1,5 +1,6 @@
 package jlearn.servlet;
 
+import freemarker.template.Configuration;
 import jlearn.servlet.service.*;
 
 import javax.naming.Context;
@@ -9,6 +10,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.IOException;
 
 public class AppContextListener implements ServletContextListener {
     @Override
@@ -34,6 +37,17 @@ public class AppContextListener implements ServletContextListener {
             BookService bookService = new BookService(ds);
             bookService.setBookReadingService(bookReadingService);
             sc.setBookService(bookService);
+
+            BookDetailsService bookDetailsService = new BookDetailsService();
+            sc.setBookDetailsService(bookDetailsService);
+
+            Configuration templateConfig = new Configuration(Configuration.VERSION_2_3_25);
+            try {
+                templateConfig.setDirectoryForTemplateLoading(new File(ctx.getRealPath("WEB-INF/templates")));
+            } catch (IOException e) {
+                throw new ServletException(e);
+            }
+            sc.setTemplatesConfig(templateConfig);
 
             ctx.setAttribute("service-container", sc);
         } catch (Exception e) {

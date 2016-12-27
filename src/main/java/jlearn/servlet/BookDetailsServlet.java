@@ -43,7 +43,7 @@ public class BookDetailsServlet extends AppBaseServlet
                 resp.sendError(404);
                 return;
             }
-            BookDetailsService service = new BookDetailsService();
+            BookDetailsService service = getServiceContainer().getBookDetailsService();
             AsyncContext asyncContext = req.startAsync();
             CompletableFuture<BookDetails> result = service.loadDetails(book);
             result
