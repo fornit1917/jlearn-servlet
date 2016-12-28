@@ -111,6 +111,10 @@ ReadingHistory.YearViewModel = function (year, items) {
     this.items = ko.observableArray(items).extend({ rateLimit: 50 });
 };
 
+ReadingHistory.YearViewModel.prototype.getDisplayYear = function () {
+    return this.year > 0 ? this.year : "Unknown";
+};
+
 ReadingHistory.ItemViewModel = function (item) {
     this.title = item.title;
     this.author = item.author;

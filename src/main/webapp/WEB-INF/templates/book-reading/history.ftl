@@ -29,7 +29,7 @@
 <div id="history">
     <div data-bind="foreach: years">
         <div class="app-history-year">
-            <h3 data-bind="text: year"></h3>
+            <h3 data-bind="text: getDisplayYear()"></h3>
             <div class="app-history-year-content" data-bind="foreach: items">
                 <div class="app-history-item" data-bind="css: {inactive: isInactive()}">
                     <div class="app-history-item-status" data-bind="text: getDisplayStatus()"></div>
