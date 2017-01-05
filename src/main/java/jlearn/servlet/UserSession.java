@@ -14,7 +14,6 @@ import java.sql.SQLException;
 class UserSession
 {
     private User user;
-    private static Logger logger = LoggerFactory.getLogger("Session");
 
     public static UserSession loadFromRequest(UserService service, HttpServletRequest req, HttpServletResponse resp) throws SQLException {
         Cookie cookieId = null;
@@ -93,7 +92,6 @@ class UserSession
 
     private static String getTokenForUser(User user, String ip)
     {
-        logger.info("Get token for user {} and IP {}", user.getEmail(), ip);
         String s = String.valueOf(user.getId()) + user.getAuthKey();// + ip;
         return DigestUtils.md5Hex(s);
     }
@@ -105,7 +103,12 @@ class UserSession
 
     private static String getIpFromRequest(HttpServletRequest req)
     {
-        return req.getHeader("X-Forwarded-For") != null ? req.getHeader("X-Forwarded-For") : req.getRemoteAddr();
+        String forwardedFor = req.getHeader("X-Forwarded-For");
+        if (forwardedFor == null) {
+            return req.getRemoteAddr();
+        }
+        String[] parts = forwardedFor.split(",", 2);
+        return parts[0].trim();
     }
 
     public boolean isGuest()
