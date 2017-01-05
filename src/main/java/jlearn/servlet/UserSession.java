@@ -90,7 +90,7 @@ class UserSession
 
     private static String getTokenForUser(User user, String ip)
     {
-        String s = String.valueOf(user.getId()) + user.getAuthKey() + ip;
+        String s = String.valueOf(user.getId()) + user.getAuthKey();// + ip;
         return DigestUtils.md5Hex(s);
     }
 
