@@ -33,10 +33,6 @@ public class BookServlet extends AppBaseServlet
             case "update":
                 doGetBookUpdate(req, resp);
                 break;
-            case "test":
-                resp.getWriter().println("Hello! ");
-                resp.getWriter().println(req.getHeader("X-Forwarded-For"));
-                break;
             default:
                 resp.sendError(404);
         }

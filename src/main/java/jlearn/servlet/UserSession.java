@@ -56,10 +56,10 @@ class UserSession
         return new UserSession(user);
     }
 
-    public static UserSession createAndStart(User user, String ip, HttpServletResponse resp)
+    public static UserSession createAndStart(User user, HttpServletRequest req, HttpServletResponse resp)
     {
         Cookie cookieId = new Cookie("uid", Integer.toString(user.getId()));
-        Cookie cookieToken = new Cookie("token", UserSession.getTokenForUser(user, ip));
+        Cookie cookieToken = new Cookie("token", UserSession.getTokenForUser(user, getIpFromRequest(req)));
         cookieId.setMaxAge(2592000);
         cookieToken.setMaxAge(2592000);
         resp.addCookie(cookieId);
@@ -71,7 +71,7 @@ class UserSession
     {
         for (Cookie c: req.getCookies()) {
             if (c.getName().equals("token")) {
-                c.setValue(getTokenForUser(user, req.getRemoteAddr()));
+                c.setValue(getTokenForUser(user, getIpFromRequest(req)));
                 c.setPath(req.getContextPath() + "/");
                 resp.addCookie(c);
             }
@@ -90,13 +90,18 @@ class UserSession
 
     private static String getTokenForUser(User user, String ip)
     {
-        String s = String.valueOf(user.getId()) + user.getAuthKey();// + ip;
+        String s = String.valueOf(user.getId()) + user.getAuthKey() + ip;
         return DigestUtils.md5Hex(s);
     }
 
     private UserSession(User user)
     {
         this.user = user;
+    }
+
+    private static String getIpFromRequest(HttpServletRequest req)
+    {
+        return req.getHeader("X-Forwarded-For") != null ? req.getHeader("X-Forwarded-For") : req.getRemoteAddr();
     }
 
     public boolean isGuest()
