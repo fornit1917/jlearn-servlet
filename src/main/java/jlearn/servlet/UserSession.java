@@ -3,6 +3,8 @@ package jlearn.servlet;
 import jlearn.servlet.dto.User;
 import jlearn.servlet.service.UserService;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +14,7 @@ import java.sql.SQLException;
 class UserSession
 {
     private User user;
+    private static Logger logger = LoggerFactory.getLogger("Session");
 
     public static UserSession loadFromRequest(UserService service, HttpServletRequest req, HttpServletResponse resp) throws SQLException {
         Cookie cookieId = null;
@@ -90,6 +93,7 @@ class UserSession
 
     private static String getTokenForUser(User user, String ip)
     {
+        logger.info("Get toket for user %s and IP %s", user.getEmail(), ip);
         String s = String.valueOf(user.getId()) + user.getAuthKey();// + ip;
         return DigestUtils.md5Hex(s);
     }
