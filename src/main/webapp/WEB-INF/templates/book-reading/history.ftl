@@ -13,6 +13,8 @@
 <#macro inner_page_content>
 <#if (isOtherUser!false) >
     <h1>Book Reading History for User ${otherUser.getEmail()}</h1>
+    <a class="btn btn-default" href="${urlHelper.path("/user/public-list") + "?email=" + otherUser.getEmail()}">Back to Profile</a>
+    <a class="btn btn-default" href="${urlHelper.path("/user/public-list")}">Back to List</a>
 <#else>
     <h1>Book Reading History</h1>
 </#if>

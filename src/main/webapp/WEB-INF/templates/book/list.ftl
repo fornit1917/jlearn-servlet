@@ -11,6 +11,8 @@
 <#macro inner_page_content>
     <#if (isOtherUser!false) >
         <h1>Books List of User ${otherUser.getEmail()}</h1>
+        <a class="btn btn-default" href="${urlHelper.path("/user/public-list") + "?email=" + otherUser.getEmail()}">Back to Profile</a>
+        <a class="btn btn-default" href="${urlHelper.path("/user/public-list")}">Back to List</a>
     <#else>
         <h1>Books List</h1>
         <a class="btn btn-success app-btn-in-head pull-right" href="${urlHelper.path("/book/add")}">Add Book</a>
