@@ -66,6 +66,7 @@ public class BookService
 
             st = queryBuilder
                     .selectColumns("*")
+                    .orderBy("id desc")
                     .limit(pageRequest.getPageSize())
                     .offset(pageRequest.getOffset())
                     .createPreparedStatement(conn);
