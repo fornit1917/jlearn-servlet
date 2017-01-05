@@ -93,7 +93,7 @@ class UserSession
 
     private static String getTokenForUser(User user, String ip)
     {
-        logger.info("Get toket for user %s and IP %s", user.getEmail(), ip);
+        logger.info("Get token for user {} and IP {}", user.getEmail(), ip);
         String s = String.valueOf(user.getId()) + user.getAuthKey();// + ip;
         return DigestUtils.md5Hex(s);
     }
