@@ -38,9 +38,9 @@ public class AppBaseServlet extends HttpServlet
         data.put("valueHelper", valueHelper);
         data.put("user", getUserSession(req).getUser());
         if (req.getQueryString() == null) {
-            data.put("requestUrl", req.getRequestURL().toString());
+            data.put("requestUrl", req.getRequestURI());
         } else {
-            data.put("requestUrl", req.getRequestURL().append("?").append(req.getQueryString()).toString());
+            data.put("requestUrl", req.getRequestURI() + "?" + req.getQueryString());
         }
 
         try {
