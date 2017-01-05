@@ -48,7 +48,7 @@ class UserSession
             return new UserSession(null);
         }
 
-        if (!cookieToken.getValue().equals(UserSession.getTokenForUser(user, req.getRemoteAddr()))) {
+        if (!cookieToken.getValue().equals(UserSession.getTokenForUser(user, getIpFromRequest(req)))) {
             UserSession.destroy(resp);
             return new UserSession(null);
         }
