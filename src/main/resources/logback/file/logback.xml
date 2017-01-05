@@ -10,9 +10,9 @@
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
             <maxFileSize>20MB</maxFileSize>
         </triggeringPolicy>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>%date %level %logger{10} [%file:%line] %msg%n</Pattern>
-        </layout>
+        <encoder class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%date %level %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
     </appender>
     <root level="info">
         <appender-ref ref="file" />
