@@ -263,6 +263,7 @@ public class BookService
         book.setAuthor(rs.getString("author"));
         book.setTitle(rs.getString("title"));
         book.setStatus(BookStatus.getByValue(rs.getInt("status")));
+        book.setFiction(rs.getBoolean("is_fiction"));
         return book;
     }
 }
