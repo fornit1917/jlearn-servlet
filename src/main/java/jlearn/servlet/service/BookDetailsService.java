@@ -144,7 +144,7 @@ public class BookDetailsService
             } else if (t.indexOf("Скачать эту книгу") != -1) {
                 Elements links = b.select("a");
                 for (Element link: links) {
-                    bookDetails.getDownloadLinks().put(link.text().trim(), "http://e-reading.club/" + link.attr("href"));
+                    bookDetails.getDownloadLinks().put(link.text().trim(), "http://www.e-reading-lib.com/" + link.attr("href"));
                 }
             }
         }
