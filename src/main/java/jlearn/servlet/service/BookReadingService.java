@@ -151,7 +151,7 @@ public class BookReadingService
             //get records
             st = queryBuilder
                 .selectColumns("b.author, b.title, br.status, br.start_year, br.start_month, br.end_year, br.end_month, br.is_reread")
-                .orderBy("CASE WHEN br.end_year=0 and br.start_year!=0 THEN date_part('year', CURRENT_DATE)*1000 + 13 ELSE (br.end_year * 1000 + br.end_month) END DESC, br.start_year * 1000 + br.start_month DESC")
+                .orderBy("CASE WHEN br.end_year=0 and br.start_year!=0 THEN date_part('year', CURRENT_DATE)*1000 + 13 ELSE (br.end_year * 1000 + br.end_month) END DESC, br.start_year * 1000 + br.start_month DESC, id DESC")
                 .limit(pageRequest.getPageSize())
                 .offset(pageRequest.getOffset())
                 .createPreparedStatement(conn);
