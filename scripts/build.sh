@@ -1,0 +1,1 @@
+mvn -s settings-heroku.xml -DskipTests clean dependency:list install
